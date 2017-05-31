@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\NUnit3TestAdapter.3.8.0-alpha1\build\net35\NUnit3TestAdapter.props" Condition="Exists('..\packages\NUnit3TestAdapter.3.8.0-alpha1\build\net35\NUnit3TestAdapter.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8EDF4429-251A-416D-BB68-93F227191BCF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Mapsui.VectorTiles.Mapsforge.Tests</RootNamespace>
+    <AssemblyName>Mapsui.VectorTiles.Mapsforge.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="nunit.framework, Version=3.7.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.7.0\lib\net45\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="EmbeddedResourceLoader.cs" />
+    <Compile Include="MapFileRealMapTests.cs" />
+    <Compile Include="DeserializerTests.cs" />
+    <Compile Include="EncodingTests.cs" />
+    <Compile Include="MapFileDoubleDeltaEncodingTests.cs" />
+    <Compile Include="MapFileEmptyTests.cs" />
+    <Compile Include="MapFileFileHeaderTests.cs" />
+    <Compile Include="MapFileSingleDeltaEncodingTests.cs" />
+    <Compile Include="MapFileWithDataTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="Resources\DoubleDeltaEncoding\generate.sh" />
+    <EmbeddedResource Include="Resources\DoubleDeltaEncoding\output.map" />
+    <None Include="Resources\Empty\generate.sh" />
+    <EmbeddedResource Include="Resources\Empty\output.map" />
+    <None Include="Resources\FileHeader\generate.sh" />
+    <EmbeddedResource Include="Resources\FileHeader\output.map" />
+    <EmbeddedResource Include="Resources\RealMap\monaco.map" />
+    <None Include="Resources\SingleDeltaEncoding\generate.sh" />
+    <EmbeddedResource Include="Resources\SingleDeltaEncoding\output.map" />
+    <None Include="Resources\WithData\generate.sh" />
+    <EmbeddedResource Include="Resources\WithData\output.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Mapsui.Geometries\Mapsui.Geometries.csproj">
+      <Project>{ee55b62d-ffa2-4c24-a4ad-7a47ace55ce5}</Project>
+      <Name>Mapsui.Geometries</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mapsui.VectorTiles.Mapsforge\Mapsui.VectorTiles.Mapsforge.csproj">
+      <Project>{92574eee-e8b1-465f-bbf6-fc7251b8b3ab}</Project>
+      <Name>Mapsui.VectorTiles.Mapsforge</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mapsui.VectorTiles\Mapsui.VectorTiles.csproj">
+      <Project>{e80b8182-1eda-413c-8a0b-2b4a22e8d2fb}</Project>
+      <Name>Mapsui.VectorTiles</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\DoubleDeltaEncoding\input.xml" />
+    <Content Include="Resources\Empty\input.xml" />
+    <Content Include="Resources\FileHeader\input.xml" />
+    <Content Include="Resources\SingleDeltaEncoding\input.xml" />
+    <Content Include="Resources\WithData\input.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\NUnit3TestAdapter.3.8.0-alpha1\build\net35\NUnit3TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit3TestAdapter.3.8.0-alpha1\build\net35\NUnit3TestAdapter.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

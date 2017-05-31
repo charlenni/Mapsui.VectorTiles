@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{92574EEE-E8B1-465F-BBF6-FC7251B8B3AB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Mapsui.VectorTiles.Mapsforge</RootNamespace>
+    <AssemblyName>Mapsui.VectorTiles.Mapsforge</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Datastore\MapReadResult.cs" />
+    <Compile Include="MapsforgeVectorTileProvider.cs" />
+    <Compile Include="Datastore\PointOfInterest.cs" />
+    <Compile Include="Datastore\PoiWayBundle.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reader\Deserializer.cs" />
+    <Compile Include="Reader\Header\MapFileException.cs" />
+    <Compile Include="Reader\Header\MapFileHeader.cs" />
+    <Compile Include="Reader\Header\MapFileInfo.cs" />
+    <Compile Include="Reader\Header\MapFileInfoBuilder.cs" />
+    <Compile Include="Reader\Header\OptionalFields.cs" />
+    <Compile Include="Reader\Header\RequiredFields.cs" />
+    <Compile Include="Reader\Header\SubFileParameter.cs" />
+    <Compile Include="Reader\Header\SubFileParameterBuilder.cs" />
+    <Compile Include="Reader\IndexCache.cs" />
+    <Compile Include="Reader\IndexCacheEntryKey.cs" />
+    <Compile Include="Reader\MapFile.cs" />
+    <Compile Include="Reader\QueryCalculations.cs" />
+    <Compile Include="Reader\QueryParameters.cs" />
+    <Compile Include="Reader\ReadBuffer.cs" />
+    <Compile Include="Reader\Utils\BoundingBoxUtils.cs" />
+    <Compile Include="Reader\Utils\MercatorProjection.cs" />
+    <Compile Include="Reader\Utils\PointUtils.cs" />
+    <Compile Include="Reader\Utils\LRUCache.cs" />
+    <Compile Include="Datastore\Way.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Mapsui.Geometries\Mapsui.Geometries.csproj">
+      <Project>{ee55b62d-ffa2-4c24-a4ad-7a47ace55ce5}</Project>
+      <Name>Mapsui.Geometries</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mapsui.VectorTiles\Mapsui.VectorTiles.csproj">
+      <Project>{e80b8182-1eda-413c-8a0b-2b4a22e8d2fb}</Project>
+      <Name>Mapsui.VectorTiles</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
