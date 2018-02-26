@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Datastore\MapReadResult.cs" />
-    <Compile Include="MapsforgeVectorTileProvider.cs" />
+    <Compile Include="MapsforgeVectorTileSource.cs" />
     <Compile Include="Datastore\PointOfInterest.cs" />
     <Compile Include="Datastore\PoiWayBundle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

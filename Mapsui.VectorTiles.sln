@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapsui.VectorTiles.Mapsforge", "Mapsui.VectorTiles.Mapsforge\Mapsui.VectorTiles.Mapsforge.csproj", "{92574EEE-E8B1-465F-BBF6-FC7251B8B3AB}"
 EndProject
@@ -13,6 +13,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapsui.VectorTiles.Mapbox", "Mapsui.VectorTiles.Mapbox\Mapsui.VectorTiles.Mapbox.csproj", "{E1EA7DC2-6EA3-403A-A2DB-7143C9E5B704}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapsui.VectorTiles.Mapbox.Tests", "Mapsui.VectorTiles.Mapbox.Tests\Mapsui.VectorTiles.Mapbox.Tests.csproj", "{37C76CED-224F-475D-8819-93D194161BB0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapsui.VectorTiles.DummyStyler", "Mapsui.VectorTiles.DefaultStyler\Mapsui.VectorTiles.DummyStyler.csproj", "{8FD4F9B3-E091-404C-B0ED-9DF639F77B15}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapsui.VectorTiles.Providers", "Mapsui.VectorTiles.Sources\Mapsui.VectorTiles.Providers.csproj", "{1D39D703-E6FF-41CC-8239-7C52A4367E93}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{649321A0-2C7F-4B36-9E8F-0C2EB62A855C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapsui.VectorTiles.Sample.Wpf", "Samples\Mapsui.VectorTiles.Sample.Wpf\Mapsui.VectorTiles.Sample.Wpf.csproj", "{9E7FB4C9-3EC0-407B-8D98-02F27963A478}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,8 +52,26 @@ Global
 		{37C76CED-224F-475D-8819-93D194161BB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37C76CED-224F-475D-8819-93D194161BB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37C76CED-224F-475D-8819-93D194161BB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FD4F9B3-E091-404C-B0ED-9DF639F77B15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FD4F9B3-E091-404C-B0ED-9DF639F77B15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FD4F9B3-E091-404C-B0ED-9DF639F77B15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FD4F9B3-E091-404C-B0ED-9DF639F77B15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D39D703-E6FF-41CC-8239-7C52A4367E93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D39D703-E6FF-41CC-8239-7C52A4367E93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D39D703-E6FF-41CC-8239-7C52A4367E93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D39D703-E6FF-41CC-8239-7C52A4367E93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E7FB4C9-3EC0-407B-8D98-02F27963A478}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E7FB4C9-3EC0-407B-8D98-02F27963A478}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E7FB4C9-3EC0-407B-8D98-02F27963A478}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E7FB4C9-3EC0-407B-8D98-02F27963A478}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9E7FB4C9-3EC0-407B-8D98-02F27963A478} = {649321A0-2C7F-4B36-9E8F-0C2EB62A855C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B8C122E2-B820-4667-BA8C-A1883FCA1663}
 	EndGlobalSection
 EndGlobal

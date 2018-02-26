@@ -35,15 +35,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="GeomType.cs" />
-    <Compile Include="Providers\IFeature.cs" />
     <Compile Include="Styles\IStyle.cs" />
-    <Compile Include="IVectorTileSource.cs" />
     <Compile Include="IVectorTileStyler.cs" />
     <Compile Include="Logger\Logger.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="VectorTileFeature.cs" />
     <Compile Include="VectorTileGeometry.cs" />
-    <Compile Include="IVectorTileProvider.cs" />
+    <Compile Include="IVectorTileSource.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="VectorTileLayer.cs" />
     <Compile Include="VectorTilePolygon.cs" />

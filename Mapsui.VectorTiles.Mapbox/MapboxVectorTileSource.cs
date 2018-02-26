@@ -3,13 +3,29 @@
     using System.Collections.Generic;
     using System.IO;
 
-    public class MapboxVectorTileProvider : IVectorTileProvider
+    public class MapboxVectorTileSource : IVectorTileSource
     {
         private Stream mapStream;
 
-        public MapboxVectorTileProvider(Stream stream)
+        public MapboxVectorTileSource(Stream stream)
         {
             mapStream = stream;
+        }
+
+        public int ZoomLevelMin
+        {
+            get
+            {
+                return 0;
+            }
+        }
+
+        public int ZoomLevelMax
+        {
+            get
+            {
+                return 127;
+            }
         }
 
         /// <summary>

@@ -71,7 +71,7 @@
         {
             CheckMapFile();
 
-            MapsforgeVectorTileProvider provider = new MapsforgeVectorTileProvider(EmbeddedResourceLoader.Load("Resources.RealMap.monaco.map", this.GetType()));
+            MapsforgeVectorTileSource provider = new MapsforgeVectorTileSource(EmbeddedResourceLoader.Load("Resources.RealMap.monaco.map", this.GetType()));
 
             IEnumerable<VectorTileLayer> layers = provider.GetTile(new Tile(8529, 5973, 14));
         }

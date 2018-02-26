@@ -7,12 +7,14 @@
     using System;
     using Datastore;
 
-    public class MapsforgeVectorTileProvider : IVectorTileProvider
+    public class MapsforgeVectorTileSource : IVectorTileSource
     {
         private Stream mapStream;
         private MapFile mapFile;
 
-        public MapsforgeVectorTileProvider(Stream stream)
+        private double epsilon = 0.0000000000001;
+
+        public MapsforgeVectorTileSource(Stream stream)
         {
             mapStream = stream;
 
@@ -24,16 +26,25 @@
             mapFile = new Reader.MapFile(mapStream);
         }
 
-        readonly string crs = "EPSG:3857";
+        public string CRS { get => "EPSG:3857"; }
 
-        public string CRS
+        public int ZoomLevelMin
         {
             get
             {
-                return crs;
+                if (mapFile == null)
+                    return 0;
+                return mapFile.MapFileInfo.ZoomLevelMin;
             }
-            set
+        }
+
+        public int ZoomLevelMax
+        {
+            get
             {
+                if (mapFile == null)
+                    return 127;
+                return mapFile.MapFileInfo.ZoomLevelMax;
             }
         }
 
@@ -55,7 +66,7 @@
                 throw new NullReferenceException("mapFile shouldn't be null");
             }
 
-            // Read tiel data
+            // Read tile data
             MapReadResult mapReadResult = mapFile.ReadMapData(tile);
 
             List<VectorTileLayer> result = new List<VectorTileLayer>();
@@ -95,14 +106,22 @@
             for (int i = 0; i < mapReadResult.Ways.Count; i++)
             {
                 Way way = mapReadResult.Ways[i];
+                List<VectorTileFeature> features = new List<VectorTileFeature>();
 
-                VectorTileFeature feature = new VectorTileFeature();
-                feature.GeometryType = GeometryType.Polygon;
                 foreach (List<Point> points in way.Points)
                 {
+                    VectorTileFeature feature = new VectorTileFeature();
+
+                    if (Math.Abs(points[0].X - points[points.Count-1].X) < epsilon && Math.Abs(points[0].Y - points[points.Count - 1].Y) < epsilon)
+                        feature.GeometryType = GeometryType.Polygon;
+                    else
+                        feature.GeometryType = GeometryType.LineString;
+
                     feature.Geometry.Add(new VectorTileGeometry(points));
+                    feature.Tags.AddRange(way.Tags);
+
+                    features.Add(feature);
                 }
-                feature.Tags.AddRange(way.Tags);
 
                 VectorTileLayer layer;
                 if (!layers.ContainsKey(way.Layer))
@@ -111,7 +130,7 @@
                 }
                 layers.TryGetValue(way.Layer, out layer);
 
-                layer.VectorTileFeatures.Add(feature);
+                layer.VectorTileFeatures.AddRange(features);
             }
 
             foreach (var layer in layers)

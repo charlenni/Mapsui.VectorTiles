@@ -59,7 +59,7 @@
             var zippedData = new MemoryStream(pbf[0].tile_data);
             var unzippedData = new GZipStream(zippedData, CompressionMode.Decompress);
 
-            var provider = new MapboxVectorTileProvider(unzippedData);
+            var provider = new MapboxVectorTileSource(unzippedData);
             var layers = provider.GetTile(tile);
         }
     }
