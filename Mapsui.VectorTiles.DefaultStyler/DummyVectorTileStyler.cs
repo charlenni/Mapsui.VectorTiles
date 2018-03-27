@@ -6,7 +6,7 @@
 
     public class DummyVectorTileStyler : IVectorTileStyler
     {
-        public IStyle GetStyle(List<Tag> tags)
+        public IStyle GetStyle(TagsCollection tags)
         {
             return null;
         }

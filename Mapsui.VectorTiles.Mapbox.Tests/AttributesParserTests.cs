@@ -22,10 +22,10 @@
 
             // assert
             Assert.IsTrue(attributes.Count == 2);
-            Assert.IsTrue(attributes[0].Key=="class");
-            Assert.IsTrue((string)attributes[0].Value == "park");
-            Assert.IsTrue(attributes[1].Key =="osm_id");
-            Assert.IsTrue(attributes[1].Value.ToString() == "3000000224480");
+            Assert.IsTrue(attributes.ContainsKey("class"));
+            Assert.IsTrue(attributes["class"].ToString() == "park");
+            Assert.IsTrue(attributes.ContainsKey("osm_id"));
+            Assert.IsTrue(attributes["osm_id"].ToString() == "3000000224480");
         }
     }
 }

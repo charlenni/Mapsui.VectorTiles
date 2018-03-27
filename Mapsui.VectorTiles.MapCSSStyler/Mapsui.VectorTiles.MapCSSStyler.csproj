@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{521ABBF5-4783-4330-970A-DE6E17CB36D1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Mapsui.VectorTiles.MapCSSStyler</RootNamespace>
+    <AssemblyName>Mapsui.VectorTiles.MapCSSStyler</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- A reference to the entire .NET Framework is automatically included -->
+    <ProjectReference Include="..\Mapsui.Geometries\Mapsui.Geometries.csproj">
+      <Project>{EE55B62D-FFA2-4C24-A4AD-7A47ACE55CE5}</Project>
+      <Name>Mapsui.Geometries</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mapsui.VectorTiles\Mapsui.VectorTiles.csproj">
+      <Project>{e80b8182-1eda-413c-8a0b-2b4a22e8d2fb}</Project>
+      <Name>Mapsui.VectorTiles</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="IMapCSSImageSource.cs" />
+    <Compile Include="MapCSSDictionaryImageSource.cs" />
+    <Compile Include="MapCSSDirectoryImageSource.cs" />
+    <Compile Include="MapCSSInterpreter.cs" />
+    <Compile Include="MapCSSObject.cs" />
+    <Compile Include="MapCSSType.cs" />
+    <Compile Include="MapCSSVectorTileStyler.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="V0_2\Domain\Declaration.cs" />
+    <Compile Include="V0_2\Domain\DeclarationAntiAliasing.cs" />
+    <Compile Include="V0_2\Domain\DeclarationCustom.cs" />
+    <Compile Include="V0_2\Domain\DeclarationDashes.cs" />
+    <Compile Include="V0_2\Domain\DeclarationFloat.cs" />
+    <Compile Include="V0_2\Domain\DeclarationFontStyle.cs" />
+    <Compile Include="V0_2\Domain\DeclarationFontVariant.cs" />
+    <Compile Include="V0_2\Domain\DeclarationFontWeight.cs" />
+    <Compile Include="V0_2\Domain\DeclarationInt.cs" />
+    <Compile Include="V0_2\Domain\DeclarationLineCap.cs" />
+    <Compile Include="V0_2\Domain\DeclarationLineJoin.cs" />
+    <Compile Include="V0_2\Domain\DeclarationString.cs" />
+    <Compile Include="V0_2\Domain\DeclarationTextAnchorHorizontal.cs" />
+    <Compile Include="V0_2\Domain\DeclarationTextDecoration.cs" />
+    <Compile Include="V0_2\Domain\DeclarationTextAnchorVertical.cs" />
+    <Compile Include="V0_2\Domain\DeclarationTextPosition.cs" />
+    <Compile Include="V0_2\Domain\DeclarationTextTransform.cs" />
+    <Compile Include="V0_2\Domain\DeclarationURL.cs" />
+    <Compile Include="V0_2\Domain\MapCSSFile.cs" />
+    <Compile Include="V0_2\Domain\Rule.cs" />
+    <Compile Include="V0_2\Domain\Selector.cs" />
+    <Compile Include="V0_2\Domain\SelectorRule.cs" />
+    <Compile Include="V0_2\Domain\SelectorTypeEnum.cs" />
+    <Compile Include="V0_2\Domain\SelectorZoom.cs" />
+    <Compile Include="V0_2\Eval\EvalInterpreter.cs" />
+    <Compile Include="V0_2\Eval\EvalInterpreterException.cs" />
+    <Compile Include="V0_2\MapCSSDomainParser.cs" />
+    <Compile Include="V0_2\MapCSSLexer.cs" />
+    <Compile Include="V0_2\MapCSSParser.cs" />
+    <Compile Include="V0_2\MapCSSRuleProperties.cs" />
+    <Compile Include="V0_2\MapCSSRulePropertiesCollection.cs" />
+    <Compile Include="V0_2\MapCSSTypes.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="V0_2\MapCSS.g" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

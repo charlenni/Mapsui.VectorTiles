@@ -1,15 +1,16 @@
-﻿namespace Mapsui.VectorTiles
-{
-    using Styles;
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Mapsui.Styles;
 
+namespace Mapsui.VectorTiles
+{
     public interface IVectorTileStyler
     {
         /// <summary>
         /// Returns an IStyle for the given tags
         /// </summary>
-        /// <param name="tags">Tags for getting the style</param>
+        /// <param name="layer">Vector tile layer, for which the style is looked up</param>
+        /// <param name="context">Context for lookup</param>
         /// <returns></returns>
-        IStyle GetStyle(List<Tag> tags);
+        List<IStyle> GetStyle(VectorTileLayer layer, EvaluationContext context);
     }
 }

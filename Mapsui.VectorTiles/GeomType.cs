@@ -5,6 +5,7 @@
         Unknown = 0,
         Point = 1,
         LineString = 2,
-        Polygon = 3
+        Polygon = 3,
+        Relation = 4,
     }
 }

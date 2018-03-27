@@ -71,7 +71,7 @@
       <Name>Mapsui.Geometries</Name>
     </ProjectReference>
     <ProjectReference Include="..\Mapsui.VectorTiles.Mapsforge\Mapsui.VectorTiles.Mapsforge.csproj">
-      <Project>{92574eee-e8b1-465f-bbf6-fc7251b8b3ab}</Project>
+      <Project>{92574EEE-E8B1-465F-BBF6-FC7251B8B3AB}</Project>
       <Name>Mapsui.VectorTiles.Mapsforge</Name>
     </ProjectReference>
     <ProjectReference Include="..\Mapsui.VectorTiles\Mapsui.VectorTiles.csproj">

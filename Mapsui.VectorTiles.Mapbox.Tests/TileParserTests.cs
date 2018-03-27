@@ -23,9 +23,9 @@
             var layerInfos = VectorTileParser.Parse(pbfStream);
 
             // asserts
-            var firstattribute = layerInfos[0].VectorTileFeatures[0].Tags[0];
+            var firstattribute = layerInfos[0].VectorTileFeatures[0].Tags.FirstOrDefault<Tag>();
             var val = firstattribute.Value;
-            Assert.IsTrue((long)val == 867160);
+            Assert.IsTrue((int)val.Value == 867160);
         }
 
         [Test]
@@ -159,7 +159,7 @@
 
             // check park feature
             var park = layerInfos[17].VectorTileFeatures[11];
-            var firstOrDefault = (from prop in park.Tags where prop.Key == "name" select prop.Value).FirstOrDefault();
+            var firstOrDefault = park.Tags["name"];
             if (firstOrDefault != null)
             {
                 var namePark = firstOrDefault.ToString();
@@ -237,7 +237,7 @@
 
             // check park feature
             var park = layerInfos[17].VectorTileFeatures[11];
-            var firstOrDefault = (from prop in park.Tags where prop.Key=="name" select prop.Value).FirstOrDefault();
+            var firstOrDefault = park.Tags["name"];
             if (firstOrDefault != null)
             {
                 var namePark = firstOrDefault.ToString();

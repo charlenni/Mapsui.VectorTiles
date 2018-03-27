@@ -1,4 +1,6 @@
-﻿namespace Mapsui.VectorTiles
+﻿using BruTile;
+
+namespace Mapsui.VectorTiles
 {
     using System.Collections.Generic;
 
@@ -9,7 +11,7 @@
         /// </summary>
         /// <param name="tile">Tile data</param>
         /// <returns></returns>
-        IEnumerable<VectorTileLayer> GetTile(Tile tile);
+        IEnumerable<VectorTileLayer> GetTile(TileInfo tileInfo);
 
         /// <summary>
         /// Minimal zoom level for this tile source

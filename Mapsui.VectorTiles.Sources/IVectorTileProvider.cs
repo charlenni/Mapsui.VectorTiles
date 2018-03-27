@@ -1,4 +1,6 @@
-﻿namespace Mapsui.VectorTiles
+﻿using BruTile;
+
+namespace Mapsui.VectorTiles
 {
     using Mapsui.Providers;
     using System.Collections.Generic;
@@ -9,8 +11,8 @@
         /// Get all Features for the given tile. 
         /// Each Feature has the styling, which is correct for the given Tags.
         /// </summary>
-        /// <param name="tile">Tile, for which Feature are requested</param>
+        /// <param name="tileInfo">TileInfo, for which Feature are requested</param>
         /// <returns></returns>
-        List<IFeature> GetTile(Tile tile);
+        List<IFeature> GetTile(TileInfo tileInfo);
     }
 }

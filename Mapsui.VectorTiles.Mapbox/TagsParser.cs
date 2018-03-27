@@ -5,9 +5,9 @@
 
     public static class TagsParser
     {
-        public static List<Tag> Parse(List<string> keys, List<Tile.Value> values, List<uint> tags)
+        public static TagsCollection Parse(List<string> keys, List<Tile.Value> values, List<uint> tags)
         {
-            var result = new List<Tag>();
+            var result = new TagsCollection();
             var odds = tags.GetOdds().ToList();
             var evens = tags.GetEvens().ToList();
 
@@ -16,7 +16,7 @@
                 var key = keys[(int)evens[i]];
                 var val = values[(int)odds[i]];
                 var valObject = GetAttr(val);
-                result.Add(new Tag(key, valObject));
+                result.Add(new Tag(key, valObject.ToString()));
             }
             return result;
         }

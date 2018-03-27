@@ -1,8 +1,8 @@
-﻿namespace Mapsui.VectorTiles.Mapbox
-{
-    using Geometries;
-    using System.Collections.Generic;
+﻿using Mapsui.Geometries;
+using System.Collections.Generic;
 
+namespace Mapsui.VectorTiles.Mapbox
+{
     public static class GeometryParser
     {
         public static List<VectorTileGeometry> ParseGeometry(List<uint> geom, Tile.GeomType geomType)

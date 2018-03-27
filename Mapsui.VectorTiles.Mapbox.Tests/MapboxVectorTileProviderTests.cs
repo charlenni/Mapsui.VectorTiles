@@ -1,4 +1,6 @@
-﻿namespace Mapsui.VectorTiles.Mapbox.Tests
+﻿using BruTile;
+
+namespace Mapsui.VectorTiles.Mapbox.Tests
 {
     using NUnit.Framework;
     using SQLite;
@@ -43,15 +45,17 @@
                 }
             }
 
-            var tile = new VectorTiles.Tile(8529, 10410, 14);
+            var tileCol = 8529;
+            var tileRow = 10410;
+            var tileLevel = 14;
 
             var sql = new SQLiteConnection(fullPath);
 
-            var tileInfo = sql.Query<Map>("select * from map where zoom_level=? and tile_column=? and tile_row=?", new object[] { tile.ZoomLevel, tile.Col, tile.Row });
+            var tile = sql.Query<Map>("select * from map where zoom_level=? and tile_column=? and tile_row=?", new object[] { tileLevel, tileCol, tileRow });
 
-            Assert.AreEqual(tileInfo.Count, 1);
+            Assert.AreEqual(tile.Count, 1);
 
-            var pbf = sql.Query<Images>("select * from images where tile_id=?", tileInfo[0].tile_id);
+            var pbf = sql.Query<Images>("select * from images where tile_id=?", tile[0].tile_id);
 
             Assert.AreEqual(pbf.Count, 1);
 
@@ -59,8 +63,12 @@
             var zippedData = new MemoryStream(pbf[0].tile_data);
             var unzippedData = new GZipStream(zippedData, CompressionMode.Decompress);
 
+            var tileInfo = new TileInfo();
+
+            tileInfo.Index = new TileIndex(tileCol, tileRow, tileLevel.ToString());
+
             var provider = new MapboxVectorTileSource(unzippedData);
-            var layers = provider.GetTile(tile);
+            var layers = provider.GetTile(tileInfo);
         }
     }
 }

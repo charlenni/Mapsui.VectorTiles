@@ -1,6 +1,5 @@
 ﻿namespace Mapsui.VectorTiles.Mapbox
 {
-    using Geometries;
     using System.Collections.Generic;
 
     public class ClassifyRings

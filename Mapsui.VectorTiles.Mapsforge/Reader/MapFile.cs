@@ -18,6 +18,9 @@
  * You should have received a copy of the GNU Lesser General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+using BruTile;
+
 namespace Mapsui.VectorTiles.Mapsforge.Reader
 {
     using System;
@@ -934,14 +937,14 @@ namespace Mapsui.VectorTiles.Mapsforge.Reader
 		/// <param name="tile">
 		///            defines area and zoom level of read map data. </param>
 		/// <returns> the read map data. </returns>
-		public MapReadResult ReadMapData(Tile tile)
+		public MapReadResult ReadMapData(TileInfo tileInfo)
 		{
 			lock (sync)
 			{
 				try
 				{
 					QueryParameters queryParameters = new QueryParameters();
-					queryParameters.queryZoomLevel = this.mapFileHeader.GetQueryZoomLevel((sbyte)tile.ZoomLevel);
+					queryParameters.queryZoomLevel = this.mapFileHeader.GetQueryZoomLevel(sbyte.Parse(tileInfo.Index.Level));
         
 					// get and check the sub-file for the query zoom level
 					SubFileParameter subFileParameter = this.mapFileHeader.GetSubFileParameter(queryParameters.queryZoomLevel);
@@ -951,13 +954,13 @@ namespace Mapsui.VectorTiles.Mapsforge.Reader
 						return null;
 					}
         
-					queryParameters.CalculateBaseTiles(tile, subFileParameter);
+					queryParameters.CalculateBaseTiles(tileInfo, subFileParameter);
 					queryParameters.CalculateBlocks(subFileParameter);
 
                     // we enlarge the bounding box for the tile slightly in order to retain any data that
                     // lies right on the border, some of this data needs to be drawn as the graphics will
                     // overlap onto this tile.
-                    return ProcessBlocks(queryParameters, subFileParameter, tile.ToBoundingBox());
+                    return ProcessBlocks(queryParameters, subFileParameter, tileInfo.Extent.ToBoundingBox());
 				}
 				catch (IOException e)
 				{

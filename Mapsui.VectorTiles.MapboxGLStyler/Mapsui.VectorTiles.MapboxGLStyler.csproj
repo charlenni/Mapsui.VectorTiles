@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{65AA694B-0CCB-46B8-8D6D-671F4BCB86AF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Mapsui.VectorTiles.MapboxGLStyler</RootNamespace>
+    <AssemblyName>Mapsui.VectorTiles.MapboxGLStyler</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- A reference to the entire .NET Framework is automatically included -->
+    <ProjectReference Include="..\Mapsui.VectorTiles\Mapsui.VectorTiles.csproj">
+      <Project>{e80b8182-1eda-413c-8a0b-2b4a22e8d2fb}</Project>
+      <Name>Mapsui.VectorTiles</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Converter\PaintConverter.cs" />
+    <Compile Include="Converter\StoppedStringConverter.cs" />
+    <Compile Include="Filter\AllFilter.cs" />
+    <Compile Include="Filter\AnyFilter.cs" />
+    <Compile Include="Filter\BinaryFilter.cs" />
+    <Compile Include="Filter\CompoundFilter.cs" />
+    <Compile Include="Filter\EqualsFilter.cs" />
+    <Compile Include="Filter\ExpressionFilter.cs" />
+    <Compile Include="Filter\Filter.cs" />
+    <Compile Include="Converter\FilterConverter.cs" />
+    <Compile Include="Filter\FilterEvaluator.cs" />
+    <Compile Include="Filter\GreaterThanEqualsFilter.cs" />
+    <Compile Include="Filter\GreaterThanFilter.cs" />
+    <Compile Include="Filter\HasFilter.cs" />
+    <Compile Include="Filter\HasIdentifierFilter.cs" />
+    <Compile Include="Filter\IdentifierEqualsFilter.cs" />
+    <Compile Include="Filter\IdentifierInFilter.cs" />
+    <Compile Include="Filter\IdentifierNotEqualsFilter .cs" />
+    <Compile Include="Filter\IdentifierNotInFilter.cs" />
+    <Compile Include="Filter\IFilter.cs" />
+    <Compile Include="Filter\InFilter.cs" />
+    <Compile Include="Filter\LessThanEqualsFilter.cs" />
+    <Compile Include="Filter\LessThanFilter.cs" />
+    <Compile Include="Filter\NoneFilter.cs" />
+    <Compile Include="Filter\NotEqualsFilter.cs" />
+    <Compile Include="Filter\NotHasFilter.cs" />
+    <Compile Include="Filter\NotHasIdentifierFilter .cs" />
+    <Compile Include="Filter\NotInFilter.cs" />
+    <Compile Include="Filter\NullFilter.cs" />
+    <Compile Include="Filter\TypeEqualsFilter.cs" />
+    <Compile Include="Filter\TypeInFilter.cs" />
+    <Compile Include="Filter\TypeNotEqualsFilter.cs" />
+    <Compile Include="Filter\TypeNotInFilter.cs" />
+    <Compile Include="MapboxGLJSON.cs" />
+    <Compile Include="MapboxGLStyler.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Converter\StoppedDoubleConverter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="BruTile, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\BruTile.1.0.0\lib\portable-net45+win+WindowsPhoneApp81+Xamarin.iOS10+MonoAndroid10+MonoTouch10\BruTile.dll</HintPath>
+    </Reference>
+    <Reference Include="ConcurrentCollections, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ConcurrentHashSet.1.0.2\lib\netstandard1.0\ConcurrentCollections.dll</HintPath>
+    </Reference>
+    <Reference Include="Mapsui, Version=1.3.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mapsui.1.3.2\lib\portable-net45+win+WindowsPhoneApp81+Xamarin.iOS10+MonoAndroid10+MonoTouch10\Mapsui.dll</HintPath>
+    </Reference>
+    <Reference Include="Mapsui.Geometries, Version=1.3.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mapsui.1.3.2\lib\portable-net45+win+WindowsPhoneApp81+Xamarin.iOS10+MonoAndroid10+MonoTouch10\Mapsui.Geometries.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net, Version=2.3.7.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <HintPath>..\packages\protobuf-net.2.3.7\lib\netstandard1.0\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="SkiaSharp, Version=1.59.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\SkiaSharp.1.59.3\lib\portable-net45+win8+wpa81+wp8\SkiaSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\netstandard1.1\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Utils\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,4 +1,6 @@
-﻿namespace Mapsui.VectorTiles.Mapsforge
+﻿using BruTile;
+
+namespace Mapsui.VectorTiles.Mapsforge
 {
     using Geometries;
     using Reader;
@@ -58,7 +60,7 @@
             return mapFile.BoundingBox;
         }
 
-        public IEnumerable<VectorTileLayer> GetTile(Tile tile)
+        public IEnumerable<VectorTileLayer> GetTile(TileInfo tileInfo)
         {
             // Check MapFile
             if (mapFile == null)
@@ -67,7 +69,7 @@
             }
 
             // Read tile data
-            MapReadResult mapReadResult = mapFile.ReadMapData(tile);
+            MapReadResult mapReadResult = mapFile.ReadMapData(tileInfo);
 
             List<VectorTileLayer> result = new List<VectorTileLayer>();
             Dictionary<int, VectorTileLayer> layers = new Dictionary<int, VectorTileLayer>();
@@ -87,10 +89,10 @@
             {
                 PointOfInterest poi = mapReadResult.PointOfInterests[i];
 
-                VectorTileFeature feature = new VectorTileFeature();
+                Feature feature = new Feature();
                 feature.GeometryType = GeometryType.Point;
                 feature.Geometry.Add(new VectorTileGeometry(poi.Position));
-                feature.Tags.AddRange(poi.Tags);
+                feature.Tags.Add(poi.Tags);
 
                 VectorTileLayer layer;
                 if (!layers.ContainsKey(poi.Layer))
@@ -106,11 +108,11 @@
             for (int i = 0; i < mapReadResult.Ways.Count; i++)
             {
                 Way way = mapReadResult.Ways[i];
-                List<VectorTileFeature> features = new List<VectorTileFeature>();
+                List<Feature> features = new List<Feature>();
 
                 foreach (List<Point> points in way.Points)
                 {
-                    VectorTileFeature feature = new VectorTileFeature();
+                    Feature feature = new Feature();
 
                     if (Math.Abs(points[0].X - points[points.Count-1].X) < epsilon && Math.Abs(points[0].Y - points[points.Count - 1].Y) < epsilon)
                         feature.GeometryType = GeometryType.Polygon;
@@ -118,7 +120,7 @@
                         feature.GeometryType = GeometryType.LineString;
 
                     feature.Geometry.Add(new VectorTileGeometry(points));
-                    feature.Tags.AddRange(way.Tags);
+                    feature.Tags.Add(way.Tags);
 
                     features.Add(feature);
                 }

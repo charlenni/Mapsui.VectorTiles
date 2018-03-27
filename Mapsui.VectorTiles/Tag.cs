@@ -1,29 +1,10 @@
-﻿/*
- * Copyright 2010, 2011, 2012, 2013 mapsforge.org
- * Copyright 2016, 2017 Dirk Weltz
- * Copyright 2016 Michael Oed
- *
- * This program is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along with
- * this program. If not, see <http://www.gnu.org/licenses/>.
- */
+﻿using Newtonsoft.Json.Linq;
 
 namespace Mapsui.VectorTiles
 {
-    using System.Text;
-    using System.Runtime.Serialization;
-
     /// <summary>
-    /// A tag represents an immutable key-value pair.
+    /// A tag represents a key-value pair.
     /// </summary>
-    [DataContract]
 	public class Tag
 	{
 		private const char KeyValueSeparator = '=';
@@ -31,69 +12,86 @@ namespace Mapsui.VectorTiles
         /// <summary>
         /// The key of this tag.
         /// </summary>
-        [DataMember]
-        public readonly string Key;
+        public string Key { get; set; }
 
         /// <summary>
         /// The value of this tag.
         /// </summary>
-        [DataMember]
-        public readonly object Value;
+        public JValue Value { get; set; }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public Tag()
+        { }
+
+        /// <summary>
+        /// Constructor for string representation of a key-value pair like "key=value"
+        /// </summary>
 		/// <param name="tag">
-		///            the textual representation of the tag. </param>
+		/// Textual representation of the tag. 
+        /// </param>
 		public Tag(string tag) : this(tag, tag.IndexOf(KeyValueSeparator))
 		{
 		}
 
+	    /// <summary>
+	    /// Constructor for a key-value-pair
+	    /// </summary>
+	    /// <param name="key">
+	    /// Key of the tag
+	    /// </param>
+	    /// <param name="value">
+	    /// Value of the tag
+	    /// </param>
+	    public Tag(string key, JValue value)
+	    {
+	        Key = key;
+	        Value = value;
+	    }
+
+        /// <summary>
+        /// Constructor for a key-value-pair
+        /// </summary>
 		/// <param name="key">
-		///            the key of the tag. </param>
+		/// Key of the tag
+        /// </param>
 		/// <param name="value">
-		///            the value of the tag. </param>
-		public Tag(string key, object value)
+		/// Value of the tag as string
+        /// </param>
+		public Tag(string key, string value)
 		{
-			this.Key = key;
-			this.Value = value;
+			Key = key;
+			Value = new JValue(value);
 		}
 
+        /// <summary>
+        /// Constructor for string representation of a key-value pair like "key=value" and given position of "="
+        /// </summary>
+		/// <param name="tag">
+		/// String with key-value-pair
+        /// </param>
+		/// <param name="splitPosition">
+		/// Position of "="
+        /// </param>
 		private Tag(string tag, int splitPosition) : this(tag.Substring(0, splitPosition), tag.Substring(splitPosition + 1))
 		{
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object o)
 		{
-			if (this == obj)
+			if (this == o)
 			{
 				return true;
 			}
-			else if (!(obj is Tag))
-			{
+
+			if (!(o is Tag other))
 				return false;
-			}
-			Tag other = (Tag) obj;
-			if (string.ReferenceEquals(this.Key, null))
-			{
-				if (!string.ReferenceEquals(other.Key, null))
-				{
-					return false;
-				}
-			}
-			else if (!this.Key.Equals(other.Key))
-			{
+
+            if (!Key.Equals(other.Key))
 				return false;
-			}
-			else if (string.ReferenceEquals(this.Value, null))
-			{
-				if (!string.ReferenceEquals(other.Value, null))
-				{
-					return false;
-				}
-			}
-			else if (!this.Value.Equals(other.Value))
-			{
-				return false;
-			}
-			return true;
+
+		    return Value.Equals(other.Value);
 		}
 
 		public override int GetHashCode()
@@ -107,12 +105,7 @@ namespace Mapsui.VectorTiles
 
 		public override string ToString()
 		{
-			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.Append("key=");
-			stringBuilder.Append(this.Key);
-			stringBuilder.Append(", value=");
-			stringBuilder.Append(this.Value.ToString());
-			return stringBuilder.ToString();
+            return $"{Key}={Value}";
 		}
 	}
 }
