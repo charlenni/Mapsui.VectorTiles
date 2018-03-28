@@ -35,6 +35,10 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
+    <ProjectReference Include="..\Mapsui.VectorTiles.Mapbox\Mapsui.VectorTiles.Mapbox.csproj">
+      <Project>{E1EA7DC2-6EA3-403A-A2DB-7143C9E5B704}</Project>
+      <Name>Mapsui.VectorTiles.Mapbox</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Mapsui.VectorTiles\Mapsui.VectorTiles.csproj">
       <Project>{e80b8182-1eda-413c-8a0b-2b4a22e8d2fb}</Project>
       <Name>Mapsui.VectorTiles</Name>
@@ -43,39 +47,10 @@
   <ItemGroup>
     <Compile Include="Converter\PaintConverter.cs" />
     <Compile Include="Converter\StoppedStringConverter.cs" />
-    <Compile Include="Filter\AllFilter.cs" />
-    <Compile Include="Filter\AnyFilter.cs" />
-    <Compile Include="Filter\BinaryFilter.cs" />
-    <Compile Include="Filter\CompoundFilter.cs" />
-    <Compile Include="Filter\EqualsFilter.cs" />
-    <Compile Include="Filter\ExpressionFilter.cs" />
-    <Compile Include="Filter\Filter.cs" />
     <Compile Include="Converter\FilterConverter.cs" />
-    <Compile Include="Filter\FilterEvaluator.cs" />
-    <Compile Include="Filter\GreaterThanEqualsFilter.cs" />
-    <Compile Include="Filter\GreaterThanFilter.cs" />
-    <Compile Include="Filter\HasFilter.cs" />
-    <Compile Include="Filter\HasIdentifierFilter.cs" />
-    <Compile Include="Filter\IdentifierEqualsFilter.cs" />
-    <Compile Include="Filter\IdentifierInFilter.cs" />
-    <Compile Include="Filter\IdentifierNotEqualsFilter .cs" />
-    <Compile Include="Filter\IdentifierNotInFilter.cs" />
-    <Compile Include="Filter\IFilter.cs" />
-    <Compile Include="Filter\InFilter.cs" />
-    <Compile Include="Filter\LessThanEqualsFilter.cs" />
-    <Compile Include="Filter\LessThanFilter.cs" />
-    <Compile Include="Filter\NoneFilter.cs" />
-    <Compile Include="Filter\NotEqualsFilter.cs" />
-    <Compile Include="Filter\NotHasFilter.cs" />
-    <Compile Include="Filter\NotHasIdentifierFilter .cs" />
-    <Compile Include="Filter\NotInFilter.cs" />
-    <Compile Include="Filter\NullFilter.cs" />
-    <Compile Include="Filter\TypeEqualsFilter.cs" />
-    <Compile Include="Filter\TypeInFilter.cs" />
-    <Compile Include="Filter\TypeNotEqualsFilter.cs" />
-    <Compile Include="Filter\TypeNotInFilter.cs" />
     <Compile Include="MapboxGLJSON.cs" />
     <Compile Include="MapboxGLStyler.cs" />
+    <Compile Include="MapboxGLVectorTileProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Converter\StoppedDoubleConverter.cs" />
   </ItemGroup>
@@ -112,9 +87,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Utils\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Mapsui.VectorTiles.MapboxGLStyler.Filter;
+using Mapsui.VectorTiles;
+using Mapsui.VectorTiles.Filter;
 using Newtonsoft.Json.Linq;
 
 namespace Mapsui.VectorTiles.MapboxGLStyler.Converter

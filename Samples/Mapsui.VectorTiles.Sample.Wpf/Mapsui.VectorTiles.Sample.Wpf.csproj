@@ -165,9 +165,9 @@
       <Project>{65AA694B-0CCB-46B8-8D6D-671F4BCB86AF}</Project>
       <Name>Mapsui.VectorTiles.MapboxGLStyler</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Mapsui.VectorTiles.Sources\Mapsui.VectorTiles.Providers.csproj">
-      <Project>{1d39d703-e6ff-41cc-8239-7c52a4367e93}</Project>
-      <Name>Mapsui.VectorTiles.Providers</Name>
+    <ProjectReference Include="..\..\Mapsui.VectorTiles\Mapsui.VectorTiles.csproj">
+      <Project>{e80b8182-1eda-413c-8a0b-2b4a22e8d2fb}</Project>
+      <Name>Mapsui.VectorTiles</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

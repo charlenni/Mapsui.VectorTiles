@@ -1,28 +1,7 @@
-﻿using BruTile.Predefined;
-using Mapsui.Layers;
-using Mapsui.Styles;
-using Mapsui.Utilities;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Mapsui.Geometries;
-using Mapsui.UI.Wpf;
+﻿using System.Windows;
+using Mapsui.Providers;
+using Mapsui.VectorTiles;
 using Mapsui.VectorTiles.MapboxGLStyler;
-using Mapsui.VectorTiles.Sources;
-using Newtonsoft.Json;
 
 namespace Mapsui.VectorTiles.Sample.Wpf
 {

@@ -11,6 +11,6 @@ namespace Mapsui.VectorTiles
         /// <param name="layer">Vector tile layer, for which the style is looked up</param>
         /// <param name="context">Context for lookup</param>
         /// <returns></returns>
-        List<IStyle> GetStyle(VectorTileLayer layer, EvaluationContext context);
+        IList<IStyle> GetStyle(VectorTileLayer layer, EvaluationContext context);
     }
 }

@@ -49,8 +49,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IVectorTileProvider.cs" />
-    <Compile Include="MapboxGLVectorTileProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

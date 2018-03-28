@@ -3,7 +3,6 @@ using System.IO;
 using Mapsui.Geometries;
 using Mapsui.Styles;
 using Mapsui.VectorTiles.MapboxGLStyler.Converter;
-using Mapsui.VectorTiles.MapboxGLStyler.Filter;
 using Newtonsoft.Json;
 
 namespace Mapsui.VectorTiles.MapboxGLStyler
@@ -42,7 +41,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
 
         public float Zoom { get; }
 
-        public List<IStyle> GetStyle(VectorTileLayer layer, EvaluationContext context)
+        public IList<IStyle> GetStyle(VectorTileLayer layer, EvaluationContext context)
         {
             List<IStyle> styles = new List<IStyle>();
 
