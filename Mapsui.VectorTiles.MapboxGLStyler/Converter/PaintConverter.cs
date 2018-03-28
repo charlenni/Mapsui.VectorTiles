@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Mapsui.Styles;
 using Newtonsoft.Json.Linq;
 
@@ -11,6 +8,12 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
 {
     public class PaintConverter
     {
+        /// <summary>
+        /// Convert given context with Mapbox GL styling layer to a Mapsui Style list
+        /// </summary>
+        /// <param name="context">Context to use while evaluating style</param>
+        /// <param name="layer">Mapbox GL style layer</param>
+        /// <returns>A list of Mapsui Styles</returns>
         public List<IStyle> ConvertPaint(EvaluationContext context, Layer layer)
         {
             List<IStyle> result = new List<IStyle>();
@@ -18,7 +21,14 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             var paint = layer.Paint;
             var layout = layer.Layout;
 
-            var style = new VectorStyle();
+            var styleLabel = new LabelStyle
+            {
+                Halo = new Pen { Color = Color.Transparent, Width = 0 },
+                CollisionDetection = true,
+                BackColor = new Brush(Color.Transparent)
+            };
+            var styleVector = new VectorStyle();
+            
             var line = new Pen
             {
                 Width = 1,
@@ -27,11 +37,11 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
 
             if (paint?.FillColor != null)
             {
-                style.Fill = new Styles.Brush(ConvertStoppedColor(paint.FillColor, context.Zoom));
-                style.Fill.FillStyle = FillStyle.Solid;
+                styleVector.Fill = new Styles.Brush(ConvertStoppedColor(paint.FillColor, context.Zoom));
+                styleVector.Fill.FillStyle = FillStyle.Solid;
 
                 if (paint?.FillOutlineColor == null)
-                    line.Color = style.Fill.Color;
+                    line.Color = styleVector.Fill.Color;
             }
 
             if (paint?.FillOutlineColor != null) // && paint.FillOutlineColor is string)
@@ -39,9 +49,16 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 line.Color = ConvertStoppedColor(paint.FillOutlineColor, context.Zoom);
             }
 
-            if (layout?.LineCap != null && layout.LineCap is string)
+            if (paint?.FillOpacity != null)
             {
-                switch (layout.LineCap.ToString())
+                var opacity = paint.FillOpacity;
+                styleVector.Fill.Color = ColorOpacity(styleVector.Fill.Color, opacity);
+                line.Color = ColorOpacity(line.Color, opacity);
+            }
+
+            if (layout?.LineCap != null)
+            {
+                switch (layout.LineCap)
                 {
                     case "butt":
                         line.PenStrokeCap = PenStrokeCap.Butt;
@@ -55,18 +72,21 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 }
             }
 
-            if (layout?.LineJoin != null && layout.LineJoin is string)
+            if (layout?.LineJoin != null)
             {
-                switch (layout.LineJoin.ToString())
+                switch (layout.LineJoin)
                 {
                     case "bevel":
-                        line.PenStrokeCap = PenStrokeCap.Butt;
+                        line.StrokeJoin = StrokeJoin.Bevel;
                         break;
                     case "round":
-                        line.PenStrokeCap = PenStrokeCap.Round;
+                        line.StrokeJoin = StrokeJoin.Round;
                         break;
                     case "mitter":
-                        line.PenStrokeCap = PenStrokeCap.Square;
+                        line.StrokeJoin = StrokeJoin.Miter;
+                        break;
+                    default:
+                        line.StrokeJoin = StrokeJoin.Miter;
                         break;
                 }
             }
@@ -99,25 +119,104 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                     for (int i = 0; i < jsonDashArray.Count; i++)
                         dashArray[i] = jsonDashArray[i].Value<float>();
 
-                    line.PenStyle = PenStyle.Dash;
+                    line.PenStyle = PenStyle.UserDefined;
+                    line.DashArray = dashArray;
                 }
             }
 
+            if (paint?.TextColor != null)
+            {
+                styleLabel.ForeColor = ConvertStoppedColor(paint.TextColor, context.Zoom);
+            }
+
+            if (paint?.TextHaloColor != null)
+            {
+                styleLabel.Halo.Color = ConvertStoppedColor(paint.TextHaloColor, context.Zoom);
+            }
+
+            if (paint?.TextHaloWidth != null)
+            {
+                styleLabel.Halo.Width = ConvertStoppedDouble(paint.TextHaloWidth, context.Zoom);
+            }
+
+            if (paint?.TextOpacity != null)
+            {
+            }
+
+            if (layout?.TextFont != null)
+            {
+                var fontName = string.Empty;
+
+                foreach (var font in layout.TextFont)
+                {
+                    // TODO: Check for fonts
+                    //if (font.exists)
+                    {
+                        fontName = (string) font;
+                        break;
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(fontName))
+                    styleLabel.Font.FontFamily = fontName;
+            }
+
+            if (layout?.TextSize != null)
+            {
+                styleLabel.Font.Size = ConvertStoppedDouble(layout.TextSize, context.Zoom);
+            }
+
+            if (layout?.TextField != null)
+            {
+                var text = layout.TextField.Trim();
+
+                if (text.StartsWith("{") && text.EndsWith("}"))
+                {
+                    var field = text.TrimStart('{').TrimEnd('}');
+
+                    if (context.Feature.Tags.ContainsKey(field))
+                    {
+                        text = (string) context.Feature.Tags[field];
+                    }
+                }
+
+                if (layout?.TextTransform != null)
+                {
+                    switch (layout.TextTransform)
+                    {
+                        case "uppercase":
+                            text = text.ToUpper();
+                            break;
+                        case "lowercase":
+                            text = text.ToLower();
+                            break;
+                    }
+                }
+
+                styleLabel.Text = text;
+            }
+
             if (context.Feature.GeometryType == GeometryType.Polygon)
-                style.Outline = line;
+                styleVector.Outline = line;
             else if (context.Feature.GeometryType == GeometryType.LineString)
-                style.Line = line;
+                styleVector.Line = line;
 
-            //Fill = new Styles.Brush(Styles.Color.Red),
-            //    Outline = new Styles.Pen { Color = Styles.Color.Black, PenStyle = PenStyle.Dash },
-            //    Line = new Styles.Pen { Color = Styles.Color.Black, PenStyle = PenStyle.Solid }
-            //});
+            result.Add(styleVector);
 
-            result.Add(style);
+            if (context.Feature.GeometryType == GeometryType.Point)
+                result.Add(styleLabel);
 
             return result;
         }
 
+        /// <summary>
+        /// Calculate the correct color for a stopped function
+        /// No Bezier type up to now
+        /// </summary>
+        /// <param name="sc">Parameters as StoppedString containing colors</param>
+        /// <param name="contextZoom">Zoom factor for calculation </param>
+        /// <param name="stoppsType">Type of calculation (interpolate, exponential, categorical)</param>
+        /// <returns>Value for this stopp respecting zoom factor and type</returns>
         public Color ConvertStoppedColor(StoppedString sc, float? contextZoom, StoppsType stoppsType = StoppsType.Exponential)
         {
             if (sc == null)
@@ -151,14 +250,23 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                         case StoppsType.Interval:
                             return nextValue;
                         case StoppsType.Exponential:
-                            var factor = (zoom - lastZoom) / (nextZoom - lastZoom);
+                            var progress = zoom - lastZoom;
+                            var difference = nextZoom - lastZoom;
+                            if (difference < float.Epsilon)
+                                return Color.Black;
+                            float factor;
+                            if (sc.Base - 1 < float.Epsilon)
+                                factor = progress / difference;
+                            else
+                                factor =  (float)((Math.Pow(sc.Base, progress) - 1) / (Math.Pow(sc.Base, difference) - 1));
                             var r = (int)Math.Round((nextValue.R - lastValue.R) * factor);
                             var g = (int)Math.Round((nextValue.G - lastValue.G) * factor);
                             var b = (int)Math.Round((nextValue.B - lastValue.B) * factor);
                             var a = (int)Math.Round((nextValue.A - lastValue.A) * factor);
                             return new Color(r, g, b, a);
                         case StoppsType.Categorical:
-                            if (nextZoom == zoom)
+                            // ==
+                            if (nextZoom - zoom < float.Epsilon)
                                 return nextValue;
                             break;
                     }
@@ -171,13 +279,22 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             return lastValue;
         }
 
-        public double ConvertStoppedDouble(StoppedDouble sd, float? contextZoom, StoppsType stoppsType = StoppsType.Exponential)
+        /// <summary>
+        /// Calculate the correct value for a stopped function
+        /// No Bezier type up to now
+        /// </summary>
+        /// <param name="sd">Parameters as StoppedDouble</param>
+        /// <param name="contextZoom">Zoom factor for calculation </param>
+        /// <param name="stoppsType">Type of calculation (interpolate, exponential, categorical)</param>
+        /// <returns>Value for this stopp respecting zoom factor and type</returns>
+        public float ConvertStoppedDouble(StoppedDouble sd, float? contextZoom, StoppsType stoppsType = StoppsType.Exponential)
         {
             if (sd == null)
                 return 0;
 
             // Are there no stopps, but a single value?
-            if (sd.SingleVal != double.MinValue)
+            // !=
+            if (sd.SingleVal - float.MinValue > float.Epsilon)
                 return sd.SingleVal;
 
             // Are there no stopps in array
@@ -204,10 +321,16 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                         case StoppsType.Interval:
                             return nextValue;
                         case StoppsType.Exponential:
-                            // TODO: Respect Stops.Base
-                            return (nextValue - lastValue ) / (nextZoom - lastZoom) * (zoom - lastZoom);
+                            var progress = zoom - lastZoom;
+                            var difference = nextZoom - lastZoom;
+                            if (difference < float.Epsilon)
+                                return 0;
+                            if (sd.Base - 1.0f < float.Epsilon)
+                                return (nextValue - lastValue) * progress / difference;
+                            else
+                                return (float)((nextValue - lastValue) * (Math.Pow(sd.Base, progress) - 1) / (Math.Pow(sd.Base, difference) - 1));
                         case StoppsType.Categorical:
-                            if (nextZoom == zoom)
+                            if (nextZoom - zoom < float.Epsilon)
                                 return nextValue;
                             break;
                     }
@@ -220,6 +343,11 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             return lastValue;
         }
 
+        /// <summary>
+        /// Converts a string in Mapbox GL format to a Mapsui Color
+        /// </summary>
+        /// <param name="from">String with HTML color representation or function like rgb() or hsl()</param>
+        /// <returns>Converted Mapsui Color</returns>
         public Color ConvertColor(string from)
         {
             Color result = default(Color);
@@ -317,9 +445,11 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
         public static Color ColorFromHsl(float h, float s, float l, float a = 1)
         {
             double r = 0, g = 0, b = 0;
-            if (l != 0)
+            // != 0
+            if (l > float.Epsilon)
             {
-                if (s == 0)
+                // == 0
+                if (s < float.Epsilon)
                     r = g = b = l;
                 else
                 {
@@ -344,6 +474,13 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
 
         }
 
+        /// <summary>
+        /// Helper function for ColorFromHsl function
+        /// </summary>
+        /// <param name="temp1"></param>
+        /// <param name="temp2"></param>
+        /// <param name="temp3"></param>
+        /// <returns></returns>
         private static double GetColorComponent(float temp1, float temp2, float temp3)
         {
             if (temp3 < 0.0f)
@@ -361,6 +498,23 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 return temp1;
         }
 
+        /// <summary>
+        /// Change alpha channel from given color to respect opacity
+        /// </summary>
+        /// <param name="color">Mapsui Color to change</param>
+        /// <param name="opacity">Opacity of the new color</param>
+        /// <returns>New color respecting old alpha and new opacity</returns>
+        private Color ColorOpacity(Color color, float? opacity)
+        {
+            if (opacity == null)
+                return color;
+
+            return new Color(color.R, color.G, color.B, (int)Math.Round(color.A * (float)opacity));
+        }
+
+        /// <summary>
+        /// Known HTML color names and hex code for RGB color
+        /// </summary>
         private readonly Dictionary<string, string> knownColors = new Dictionary<string, string>
         {
             {"AliceBlue", "#F0F8FF"},

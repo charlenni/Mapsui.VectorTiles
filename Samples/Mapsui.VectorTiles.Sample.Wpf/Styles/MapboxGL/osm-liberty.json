@@ -2106,7 +2106,6 @@
       "source": "openmaptiles",
       "source-layer": "building",
       "minzoom": 13,
-      "maxzoom": 14,
       "layout": {
         "visibility": "visible"
       },
@@ -2125,29 +2124,6 @@
             ]
           ]
         }
-      }
-    },
-    {
-      "id": "building-3d",
-      "type": "fill-extrusion",
-      "metadata": {},
-      "source": "openmaptiles",
-      "source-layer": "building",
-      "minzoom": 14,
-      "layout": {
-        "visibility": "visible"
-      },
-      "paint": {
-        "fill-extrusion-color": "hsl(35, 8%, 85%)",
-        "fill-extrusion-height": {
-          "property": "render_height",
-          "type": "identity"
-        },
-        "fill-extrusion-base": {
-          "property": "render_min_height",
-          "type": "identity"
-        },
-        "fill-extrusion-opacity": 0.8
       }
     },
     {

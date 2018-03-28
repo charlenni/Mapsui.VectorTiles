@@ -82,7 +82,6 @@ namespace Mapsui.VectorTiles.Sample.Wpf
                 DataSource = new MapboxGLVectorTileProvider(mapStream, jsonStyler),
                 Opacity = 1,
                 Style = null,
-                //Style = new VectorStyle { Fill = new Styles.Brush(Styles.Color.Red), Outline = new Styles.Pen { Color = Styles.Color.Black, PenStyle = PenStyle.Dash }, Line = new Styles.Pen { Color = Styles.Color.Black, PenStyle = PenStyle.Solid } }
             });
         }
     }

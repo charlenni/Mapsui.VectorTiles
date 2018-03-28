@@ -5,9 +5,7 @@ using System.Linq;
 using BruTile;
 using BruTile.Predefined;
 using Mapsui.Geometries;
-using Mapsui.Logging;
 using Mapsui.Providers;
-using Mapsui.Styles;
 using Mapsui.VectorTiles.Mapbox;
 
 namespace Mapsui.VectorTiles.Sources
@@ -22,7 +20,7 @@ namespace Mapsui.VectorTiles.Sources
             source = new MapboxVectorTileSource(mapFile);
             styler = s;
 
-            Schema = new GlobalSphericalMercator("vec", YAxis.TMS, source.ZoomLevelMin, source.ZoomLevelMax);
+            Schema = new GlobalSphericalMercator("pbf", YAxis.TMS, source.ZoomLevelMin, source.ZoomLevelMax);
         }
 
         public string CRS { get; set; }
@@ -41,6 +39,7 @@ namespace Mapsui.VectorTiles.Sources
 
             // Calc zoom level
             string zoomLevel = BruTile.Utilities.GetNearestLevel(Schema.Resolutions, resolution);
+            float zoomFactor = (float)Math.Log(Schema.Resolutions["0"].UnitsPerPixel / resolution, 2);
 
             // Calc tiles from box and resolution
             var tileInfos = Schema.GetTileInfos(box.ToExtent(), zoomLevel);
@@ -48,7 +47,7 @@ namespace Mapsui.VectorTiles.Sources
             // Add all features in bounding box to results
             foreach (var tileInfo in tileInfos)
             {
-                var list = GetTile(tileInfo);
+                var list = GetTile(tileInfo, zoomFactor);
 
                 result.AddRange(list);
             }
@@ -56,15 +55,12 @@ namespace Mapsui.VectorTiles.Sources
             return result;
         }
 
-        public List<IFeature> GetTile(TileInfo tileInfo)
+        public List<IFeature> GetTile(TileInfo tileInfo, float zoomFactor)
         {
             if (source == null)
             {
                 return null;
             }
-
-            // Get zoom
-            var zoom = int.Parse(tileInfo.Index.Level);
 
             // Calc tile offset relative to upper left corner
             double factor = (tileInfo.Extent.MaxX - tileInfo.Extent.MinX) / 4096.0;
@@ -78,7 +74,11 @@ namespace Mapsui.VectorTiles.Sources
                 foreach (var vtf in layer.VectorTileFeatures)
                 {
                     var feature = new Providers.Feature();
-                    var styles = styler.GetStyle(layer, new EvaluationContext(zoom, vtf));
+                    var styles = styler.GetStyle(layer, new EvaluationContext(zoomFactor, vtf));
+
+                    // If there isn't a style, feature shouldn't be rendered
+                    if (styles == null || styles.Count == 0)
+                        continue;
 
                     switch (vtf.GeometryType)
                     {
@@ -107,10 +107,6 @@ namespace Mapsui.VectorTiles.Sources
                                 }
                                 feature.Geometry = points;
                             }
-                            // Add all styles
-                            feature.Styles.Clear();
-                            foreach(var style in styles)
-                                feature.Styles.Add(style);
                             break;
                         case GeometryType.LineString:
                             // Convert all LineStrings from Mapbox to Mapsui format
@@ -133,7 +129,7 @@ namespace Mapsui.VectorTiles.Sources
                                 foreach (var geom in vtf.Geometry)
                                 {
                                     var line = new LineString();
-                                    foreach (var point in vtf.Geometry[0].Points)
+                                    foreach (var point in geom.Points)
                                     {
                                         point.X = (float)(tileInfo.Extent.MinX + point.X * factor);
                                         point.Y = (float)(tileInfo.Extent.MaxY - point.Y * factor);
@@ -143,12 +139,6 @@ namespace Mapsui.VectorTiles.Sources
                                 }
                                 feature.Geometry = lines;
                             }
-                            feature.Styles.Clear();
-                            foreach (var style in styles)
-                                feature.Styles.Add(style);
-                            //feature.Styles.Add(new VectorStyle { Line = new Pen { Color = Color.Black, Width = 2 } });
-                            //foreach (var tag in vecfeature.Tags)
-                            //    System.Diagnostics.Debug.WriteLine(string.Format("{0}={1}", tag.Key, tag.Value));
                             break;
                         case GeometryType.Polygon:
                             // Convert all Polygons from Mapbox to Mapsui format

@@ -16,16 +16,19 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
     public class StoppedDouble
     {
         [JsonProperty("base")]
-        public double Base { get; set; }
+        public float Base { get; set; } = 1f;
 
         [JsonProperty("stops")]
         public IList<IList<object>> Stops { get; set; }
 
-        public double SingleVal { get; set; } = double.MinValue;
+        public float SingleVal { get; set; } = float.MinValue;
     }
 
     public class StoppedString
     {
+        [JsonProperty("base")]
+        public float Base { get; set; } = 1f;
+
         [JsonProperty("stops")]
         public IList<IList<object>> Stops { get; set; }
 
@@ -41,9 +44,8 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
         [JsonProperty("fill-color")]
         public StoppedString FillColor { get; set; }
 
-        [JsonConverter(typeof(StoppedDoubleConverter))]
         [JsonProperty("fill-opacity")]
-        public StoppedDouble FillOpacity { get; set; }
+        public float? FillOpacity { get; set; }
 
         [JsonConverter(typeof(StoppedStringConverter))]
         [JsonProperty("line-color")]
@@ -74,15 +76,16 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
         [JsonProperty("text-color")]
         public StoppedString TextColor { get; set; }
 
+        [JsonConverter(typeof(StoppedDoubleConverter))]
         [JsonProperty("text-halo-width")]
-        public double? TextHaloWidth { get; set; }
+        public StoppedDouble TextHaloWidth { get; set; }
 
         [JsonConverter(typeof(StoppedStringConverter))]
         [JsonProperty("text-halo-color")]
         public StoppedString TextHaloColor { get; set; }
 
         [JsonProperty("text-halo-blur")]
-        public double? TextHaloBlur { get; set; }
+        public float? TextHaloBlur { get; set; }
 
         [JsonProperty("fill-antialias")]
         public bool? FillAntialias { get; set; }
@@ -125,7 +128,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
     public class Layout
     {
         [JsonProperty("line-cap")]
-        public object LineCap { get; set; }
+        public string LineCap { get; set; }
 
         [JsonProperty("line-join")]
         public string LineJoin { get; set; }
@@ -134,16 +137,17 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
         public string Visibility { get; set; }
 
         [JsonProperty("text-font")]
-        public object TextFont { get; set; }
+        public JArray TextFont { get; set; }
 
         [JsonProperty("text-field")]
-        public object TextField { get; set; }
+        public string TextField { get; set; }
 
         [JsonProperty("text-max-width")]
         public object TextMaxWidth { get; set; }
 
+        [JsonConverter(typeof(StoppedDoubleConverter))]
         [JsonProperty("text-size")]
-        public object TextSize { get; set; }
+        public StoppedDouble TextSize { get; set; }
 
         [JsonConverter(typeof(StoppedDoubleConverter))]
         [JsonProperty("text-padding")]
@@ -168,10 +172,10 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
         public string TextTransform { get; set; }
 
         [JsonProperty("text-letter-spacing")]
-        public double? TextLetterSpacing { get; set; }
+        public float? TextLetterSpacing { get; set; }
 
         [JsonProperty("text-line-height")]
-        public double? TextLineHeight { get; set; }
+        public float? TextLineHeight { get; set; }
 
         [JsonProperty("icon-image")]
         public object IconImage { get; set; }

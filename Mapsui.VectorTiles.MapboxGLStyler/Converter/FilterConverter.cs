@@ -5,6 +5,9 @@ using Newtonsoft.Json.Linq;
 
 namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
 {
+    /// <summary>
+    /// Create filters from given filter array in Mapbpx GL style layer
+    /// </summary>
     public class FilterConverter
     {
         public static bool IsExpressionFilter(JArray filter)
@@ -12,7 +15,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             if (filter == null || filter.Count == 0)
                 return false;
 
-            if (filter[0].Type != JTokenType.String) // is string op))
+            if (filter[0].Type != JTokenType.String)
                 return false;
 
             var op = filter[0].ToString();
@@ -52,7 +55,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
         public static object CheckValue(JValue value)
         {
             if (value != null && value.Type != JTokenType.Boolean && value.Type != JTokenType.Float && value.Type != JTokenType.Integer && value.Type != JTokenType.String)
-                throw new ArgumentException("filter expression value must be a bool, double or string");
+                throw new ArgumentException("filter expression value must be a bool, float or string");
 
             return value;
         }
@@ -244,6 +247,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
 
         public IFilter ConvertExpressionFilter(JArray filter)
         {
+            // TODO
             //optional<Filter> convertExpressionFilter(const Convertible&value, Error & error)
             //{
             //    optional<std::unique_ptr<Expression>> expression = convert<std::unique_ptr<Expression>>(value, error, expression::type::Boolean);
@@ -256,6 +260,11 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             return new ExpressionFilter();
         }
 
+        /// <summary>
+        /// Convert filter array to usable filter objects
+        /// </summary>
+        /// <param name="filter">JArray with all filters</param>
+        /// <returns>A filter usable while checking styles</returns>
         public IFilter ConvertFilter(JArray filter)
         {
             if (IsExpressionFilter(filter))

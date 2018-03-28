@@ -2,7 +2,7 @@
 
 namespace Mapsui.VectorTiles
 {
-    using Mapsui.Providers;
+    using Providers;
     using System.Collections.Generic;
 
     public interface IVectorTileProvider : IProvider
@@ -12,7 +12,8 @@ namespace Mapsui.VectorTiles
         /// Each Feature has the styling, which is correct for the given Tags.
         /// </summary>
         /// <param name="tileInfo">TileInfo, for which Feature are requested</param>
-        /// <returns></returns>
-        List<IFeature> GetTile(TileInfo tileInfo);
+        /// <param name="zoomFactor">Zoom factor, for which Feature should be styled</param>
+        /// <returns>List of features to display</returns>
+        List<IFeature> GetTile(TileInfo tileInfo, float zoomFactor);
     }
 }
