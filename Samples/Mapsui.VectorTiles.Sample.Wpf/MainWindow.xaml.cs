@@ -57,11 +57,12 @@ namespace Mapsui.VectorTiles.Sample.Wpf
             var styleStream = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.Styles.MapCSS.mapnik.mapcss");
             //var mapStream = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.andorra.map");
             var mapStream = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.trails.mbtiles");
-            var jsonStyleStream = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.Styles.MapboxGL.klokantech-basic.json");
+            var jsonStyleStream = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.Styles.MapboxGL.osm-liberty.json");
             var jsonStyler = new MapboxGLStyler.MapboxGLStyler(jsonStyleStream);
 
             MapControl.Map.BackColor = jsonStyler.Background;
-            MapControl.Map.NavigateTo(jsonStyler.Center);
+            if (jsonStyler.Center != null)
+                MapControl.Map.NavigateTo(jsonStyler.Center);
 //            MapControl.Map.NavigateTo(MapControl.Map.Resolutions[(int)jsonStyler.Zoom]);
 
             //var bb = new BoundingBox(Projection.SphericalMercator.FromLonLat(7.3090279, 43.416333),

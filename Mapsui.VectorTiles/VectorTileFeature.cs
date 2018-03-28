@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Mapsui.VectorTiles
 {
-    public sealed class Feature
+    public sealed class VectorTileFeature
     {
         string id;
 
@@ -44,7 +44,7 @@ namespace Mapsui.VectorTiles
             get { return 1; }
         }
 
-        public Feature(string id = "")
+        public VectorTileFeature(string id = "")
         {
             this.id = id;
         }

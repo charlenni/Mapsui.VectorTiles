@@ -148,6 +148,7 @@
     <EmbeddedResource Include="Styles\MapCSS\mapnik.mapcss" />
     <EmbeddedResource Include="Styles\MapboxGL\basic-v9.json" />
     <EmbeddedResource Include="Styles\MapboxGL\klokantech-basic.json" />
+    <EmbeddedResource Include="Styles\MapboxGL\osm-liberty.json" />
     <None Include="Styles\osm-liberty\LICENSE.md" />
     <EmbeddedResource Include="Styles\osm-liberty\osm-liberty.json" />
     <EmbeddedResource Include="Styles\osm-liberty\sprite\osm-liberty%402x.json" />

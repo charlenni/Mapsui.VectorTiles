@@ -6,10 +6,10 @@
 	{
         public VectorTileLayer()
         {
-            VectorTileFeatures = new List<Feature>();
+            VectorTileFeatures = new List<VectorTileFeature>();
         }
 
-		public List<Feature> VectorTileFeatures { get; set; }
+		public List<VectorTileFeature> VectorTileFeatures { get; set; }
 		public string Name { get; set; }
         public uint Version { get; set; }
 		public uint Extent { get; set; }

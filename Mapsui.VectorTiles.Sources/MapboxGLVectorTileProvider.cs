@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using BruTile;
 using BruTile.Predefined;
 using Mapsui.Geometries;
+using Mapsui.Logging;
 using Mapsui.Providers;
 using Mapsui.Styles;
 using Mapsui.VectorTiles.Mapbox;
@@ -64,7 +66,7 @@ namespace Mapsui.VectorTiles.Sources
             // Get zoom
             var zoom = int.Parse(tileInfo.Index.Level);
 
-            // Calc tile offset
+            // Calc tile offset relative to upper left corner
             double factor = (tileInfo.Extent.MaxX - tileInfo.Extent.MinX) / 4096.0;
 
             List<IFeature> features = new List<IFeature>();
@@ -73,34 +75,74 @@ namespace Mapsui.VectorTiles.Sources
 
             foreach (var layer in layers)
             {
-                foreach (var vecfeature in layer.VectorTileFeatures)
+                foreach (var vtf in layer.VectorTileFeatures)
                 {
                     var feature = new Providers.Feature();
-                    var styles = styler.GetStyle(layer, new EvaluationContext(zoom, vecfeature));
+                    var styles = styler.GetStyle(layer, new EvaluationContext(zoom, vtf));
 
-                    switch (vecfeature.GeometryType)
+                    switch (vtf.GeometryType)
                     {
                         case GeometryType.Point:
-                            foreach (var point in vecfeature.Geometry[0].Points)
+                            // Convert all Points from Mapbox to Mapsui format
+                            if (vtf.Geometry.Count == 1)
                             {
+                                // Single point
+                                var point = vtf.Geometry[0].Points[0];
                                 point.X = (float)(tileInfo.Extent.MinX + point.X * factor);
                                 point.Y = (float)(tileInfo.Extent.MaxY - point.Y * factor);
                                 feature.Geometry = point;
                             }
+                            else
+                            {
+                                // Multi point
+                                var points = new MultiPoint();
+                                foreach (var geom in vtf.Geometry)
+                                {
+                                    foreach (var point in geom.Points)
+                                    {
+                                        point.X = (float) (tileInfo.Extent.MinX + point.X * factor);
+                                        point.Y = (float) (tileInfo.Extent.MaxY - point.Y * factor);
+                                        points.Points.Add(point);
+                                    }
+                                }
+                                feature.Geometry = points;
+                            }
+                            // Add all styles
                             feature.Styles.Clear();
                             foreach(var style in styles)
                                 feature.Styles.Add(style);
-                            //feature.Styles.Add(new VectorStyle { Outline = new Pen { Color = Color.Red, Width = 1 }, Fill = new Brush { Color = Color.Orange } });
                             break;
                         case GeometryType.LineString:
-                            var line = new LineString();
-                            foreach (var point in vecfeature.Geometry[0].Points)
+                            // Convert all LineStrings from Mapbox to Mapsui format
+                            if (vtf.Geometry.Count == 1)
                             {
-                                point.X = (float)(tileInfo.Extent.MinX + point.X * factor);
-                                point.Y = (float)(tileInfo.Extent.MaxY - point.Y * factor);
-                                line.Vertices.Add(point);
+                                // Single line
+                                var line = new LineString();
+                                foreach (var point in vtf.Geometry[0].Points)
+                                {
+                                    point.X = (float) (tileInfo.Extent.MinX + point.X * factor);
+                                    point.Y = (float) (tileInfo.Extent.MaxY - point.Y * factor);
+                                    line.Vertices.Add(point);
+                                }
+                                feature.Geometry = line;
                             }
-                            feature.Geometry = line;
+                            else
+                            {
+                                // Multi line
+                                var lines = new MultiLineString();
+                                foreach (var geom in vtf.Geometry)
+                                {
+                                    var line = new LineString();
+                                    foreach (var point in vtf.Geometry[0].Points)
+                                    {
+                                        point.X = (float)(tileInfo.Extent.MinX + point.X * factor);
+                                        point.Y = (float)(tileInfo.Extent.MaxY - point.Y * factor);
+                                        line.Vertices.Add(point);
+                                    }
+                                    lines.LineStrings.Add(line);
+                                }
+                                feature.Geometry = lines;
+                            }
                             feature.Styles.Clear();
                             foreach (var style in styles)
                                 feature.Styles.Add(style);
@@ -109,52 +151,66 @@ namespace Mapsui.VectorTiles.Sources
                             //    System.Diagnostics.Debug.WriteLine(string.Format("{0}={1}", tag.Key, tag.Value));
                             break;
                         case GeometryType.Polygon:
-                            var poly = new Polygon();
-                            // Check if first and last point are the same
-                            if (!vecfeature.Geometry[0].Points[0].Equals(vecfeature.Geometry[0].Points[vecfeature.Geometry[0].Points.Count - 1]))
-                                vecfeature.Geometry[0].Points.Add(vecfeature.Geometry[0].Points[0]);
-                            //poly.ExteriorRing.Vertices.AddRange(vecfeature.Geometry[0].Points.Select((p) => Projection.SphericalMercator.FromLonLat(p.X, p.Y)).ToList<Point>());
-                            foreach (var point in vecfeature.Geometry[0].Points)
+                            // Convert all Polygons from Mapbox to Mapsui format
+                            MultiPolygon polygons = new MultiPolygon();
+                            Polygon polygon = null;
+                            var i = 0;
+                            do
                             {
-                                poly.ExteriorRing.Vertices.Add(new Point((float)(tileInfo.Extent.MinX + point.X * factor), (float)(tileInfo.Extent.MaxY - point.Y * factor)));
+                                var ring = new LinearRing();
+
+                                // Check, if first and last are the same points
+                                if (!vtf.Geometry[0].Points[0].Equals(vtf.Geometry[0].Points[vtf.Geometry[0].Points.Count - 1]))
+                                    vtf.Geometry[0].Points.Add(vtf.Geometry[0].Points[0]);
+                                
+                                // Convert all points of this ring
+                                foreach (var point in vtf.Geometry[i].Points)
+                                {
+                                    ring.Vertices.Add(new Point(
+                                        (float)(tileInfo.Extent.MinX + point.X * factor),
+                                        (float)(tileInfo.Extent.MaxY - point.Y * factor)));
+                                }
+
+                                if (ring.IsCCW() && polygon != null)
+                                {
+                                    polygon.InteriorRings.Add(ring);
+                                }
+                                else
+                                {
+                                    if (polygon != null)
+                                    {
+                                        polygons.Polygons.Add(polygon);
+                                    }
+                                    polygon = new Polygon(ring);
+                                }
+
+                                i++;
+                            } while (i < vtf.Geometry.Count);
+                            // Save last one
+                            polygons.Polygons.Add(polygon);
+                            // Now save correct geometry
+                            if (polygons.Polygons.Count > 1)
+                            {
+                                feature.Geometry = polygons;
                             }
-                            feature.Geometry = poly;
-                            feature.Styles.Clear();
-                            foreach (var style in styles)
-                                feature.Styles.Add(style);
-                            //if (layer.Name.Equals("0"))
-                            //    feature.Styles.Add(new VectorStyle { Outline = new Pen { Color = Color.Green, Width = 1 }, Fill = new Brush { Color = Color.Transparent, Background = Color.Red } });
-                            //else
-                            //    feature.Styles.Add(new VectorStyle { Outline = new Pen { Color = Color.Green, Width = 1 }, Fill = new Brush { Color = Color.FromArgb(40, 255, 255, 255), Background = Color.Transparent } });
+                            else
+                            {
+                                feature.Geometry = polygons.Polygons.First();
+                            }
                             break;
                     }
 
+                    // Set style for this feature
+                    feature.Styles.Clear();
+                    foreach (var style in styles)
+                        feature.Styles.Add(style);
+
+                    // Add to list of features
                     features.Add(feature);
                 }
             }
 
             return features;
-        }
-
-        private Point WorldToTilePos(double lon, double lat, int zoom)
-        {
-            Point p = new Point();
-            p.X = (float)((lon + 180.0) / 360.0 * (1 << zoom));
-            p.Y = (float)((1.0 - Math.Log(Math.Tan(lat * Math.PI / 180.0) +
-                1.0 / Math.Cos(lat * Math.PI / 180.0)) / Math.PI) / 2.0 * (1 << zoom));
-
-            return p;
-        }
-
-        private Point TileToWorldPos(double tile_x, double tile_y, int zoom)
-        {
-            Point p = new Point();
-            double n = Math.PI - ((2.0 * Math.PI * tile_y) / Math.Pow(2.0, zoom));
-
-            p.X = (float)((tile_x / Math.Pow(2.0, zoom) * 360.0) - 180.0);
-            p.Y = (float)(180.0 / Math.PI * Math.Atan(Math.Sinh(n)));
-
-            return p;
         }
     }
 }

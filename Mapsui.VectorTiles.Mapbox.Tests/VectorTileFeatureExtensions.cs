@@ -131,7 +131,7 @@
         }
 
 
-        public static Feature ToGeoJSON(this VectorTiles.Feature vectortileFeature, int x, int y, int z)
+        public static Feature ToGeoJSON(this VectorTiles.VectorTileFeature vectortileFeature, int x, int y, int z)
         {
             IGeometryObject geom = null;
 

@@ -3,12 +3,12 @@
     public class EvaluationContext
     {
         public float? Zoom { get; }
-        public Feature Feature { get; }
+        public VectorTileFeature Feature { get; }
 
-        public EvaluationContext(Feature feature) : this(null, feature)
+        public EvaluationContext(VectorTileFeature feature) : this(null, feature)
         { }
 
-        public EvaluationContext(float? zoom, Feature feature = null)
+        public EvaluationContext(float? zoom, VectorTileFeature feature = null)
         {
             Zoom = zoom;
             Feature = feature;

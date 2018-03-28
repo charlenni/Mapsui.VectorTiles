@@ -18,7 +18,8 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
             using (var reader = new StreamReader(input))
                 styleJson = JsonConvert.DeserializeObject<MapboxJson>(reader.ReadToEnd());
 
-            Center = Projection.SphericalMercator.FromLonLat(styleJson.Center[0], styleJson.Center[1]);
+            if (styleJson.Center != null)
+                Center = Projection.SphericalMercator.FromLonLat(styleJson.Center[0], styleJson.Center[1]);
             Zoom = styleJson.Zoom ?? 12;
 
             var filterConverter = new FilterConverter();

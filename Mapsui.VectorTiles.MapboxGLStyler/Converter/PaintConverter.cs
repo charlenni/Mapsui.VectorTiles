@@ -87,7 +87,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
 
             if (paint?.LineOpacity != null)
             {
-                line.Color = new Color(line.Color.R, line.Color.G, line.Color.B, (int)Math.Round(1.0 - ConvertStoppedDouble(paint.LineOpacity, context.Zoom) * 255.0));
+                line.Color = new Color(line.Color.R, line.Color.G, line.Color.B, (int)Math.Round(ConvertStoppedDouble(paint.LineOpacity, context.Zoom) * 255.0));
             }
 
             if (paint?.LineDasharray != null)

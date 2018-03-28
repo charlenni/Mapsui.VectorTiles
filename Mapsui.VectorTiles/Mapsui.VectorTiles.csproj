@@ -45,7 +45,7 @@
     <Compile Include="TagsCollectionBase.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="Value.cs" />
-    <Compile Include="Feature.cs" />
+    <Compile Include="VectorTileFeature.cs" />
     <Compile Include="ValueType.cs" />
     <Compile Include="VectorTileGeometry.cs" />
     <Compile Include="IVectorTileSource.cs" />

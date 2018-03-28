@@ -4,9 +4,9 @@
 
     public static class FeatureParser
     {
-        public static Feature Parse(Tile.Feature feature, List<string> keys, List<Tile.Value> values, uint extent)
+        public static VectorTileFeature Parse(Tile.Feature feature, List<string> keys, List<Tile.Value> values, uint extent)
         {
-            var result = new Feature(feature.Id.ToString());
+            var result = new VectorTileFeature(feature.Id.ToString());
 
             var geom =  GeometryParser.ParseGeometry(feature.Geometry, feature.Type);
             result.GeometryType = (GeometryType)feature.Type;
