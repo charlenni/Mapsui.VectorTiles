@@ -201,10 +201,10 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             else if (context.Feature.GeometryType == GeometryType.LineString)
                 styleVector.Line = line;
 
-            result.Add(styleVector);
-
             if (context.Feature.GeometryType == GeometryType.Point)
                 result.Add(styleLabel);
+            else
+                result.Add(styleVector);
 
             return result;
         }
