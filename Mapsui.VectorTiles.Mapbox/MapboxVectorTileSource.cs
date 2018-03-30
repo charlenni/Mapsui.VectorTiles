@@ -34,6 +34,12 @@ namespace Mapsui.VectorTiles.Mapbox
             if (result != null && result.Count > 0)
                 Attribution = result.First().value;
 
+            result = connection.Query<Mapbox.metadata>("SELECT * FROM metadata WHERE name=?", "json");
+            if (result != null && result.Count > 0)
+            {
+                string temp = result.First().value;
+            }
+
             result = connection.Query<Mapbox.metadata>("SELECT * FROM metadata WHERE name=?", "bounds");
             string bounds = string.Empty;
             if (result != null && result.Count > 0)

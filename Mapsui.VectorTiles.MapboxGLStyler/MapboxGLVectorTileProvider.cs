@@ -71,6 +71,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
 
             foreach (var layer in layers)
             {
+                System.Diagnostics.Debug.WriteLine(layer.Name);
                 foreach (var vtf in layer.VectorTileFeatures)
                 {
                     var feature = new Providers.Feature();

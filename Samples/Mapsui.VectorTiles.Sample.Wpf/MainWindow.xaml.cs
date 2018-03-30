@@ -1,7 +1,10 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Windows;
 using Mapsui.Providers;
 using Mapsui.VectorTiles;
 using Mapsui.VectorTiles.MapboxGLStyler;
+using Newtonsoft.Json;
 
 namespace Mapsui.VectorTiles.Sample.Wpf
 {
@@ -21,23 +24,31 @@ namespace Mapsui.VectorTiles.Sample.Wpf
             //// Get all images
             //var regex = new Regex(Regex.Escape("."));
             var assembly = this.GetType().Assembly;
-            //foreach (var name in assembly.GetManifestResourceNames())
-            //{
-            //    if (name.Contains("Symbols"))
-            //    {
-            //        var key = name.Substring(name.IndexOf("Symbols")).ToLower();
-            //        key = regex.Replace(key, "/", 1);
-            //        imageSource.Add(key, assembly.GetManifestResourceStream(name));
-            //    }
+            foreach (var name in assembly.GetManifestResourceNames())
+                System.Diagnostics.Debug.WriteLine(name);
+                //{
+                //    if (name.Contains("Symbols"))
+                //    {
+                //        var key = name.Substring(name.IndexOf("Symbols")).ToLower();
+                //        key = regex.Replace(key, "/", 1);
+                //        imageSource.Add(key, assembly.GetManifestResourceStream(name));
+                //    }
 
-            //    System.Diagnostics.Debug.WriteLine(name);
-            //}
+                //    System.Diagnostics.Debug.WriteLine(name);
+                //}
 
-            var styleStream = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.Styles.MapCSS.mapnik.mapcss");
+                var styleStream = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.Styles.MapCSS.mapnik.mapcss");
             //var mapStream = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.andorra.map");
             var mapStream = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.trails.mbtiles");
-            var jsonStyleStream = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.Styles.MapboxGL.osm-liberty.json");
+            var jsonStyleStream = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.Styles.osm_liberty.osm-liberty.json");
+            var jsonStyleAtlas = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.Styles.osm_liberty.sprite.osm-liberty.json");
+            var jsonStyleAtlasBitmap = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.Styles.osm_liberty.sprite.osm-liberty@2x.png");
             var jsonStyler = new MapboxGLStyler.MapboxGLStyler(jsonStyleStream);
+
+            if (jsonStyler.SpriteUrl != null)
+            {
+                jsonStyler.CreateSprites(jsonStyleAtlas, Styles.BitmapRegistry.Instance.Register(jsonStyleAtlasBitmap));
+            }
 
             MapControl.Map.BackColor = jsonStyler.Background;
             if (jsonStyler.Center != null)

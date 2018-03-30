@@ -35,6 +35,38 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
         public string SingleVal { get; set; } = string.Empty;
     }
 
+    public class Atlas
+    {
+        [JsonProperty("x")]
+        public int X { get; set; }
+
+        [JsonProperty("y")]
+        public int Y { get; set; }
+
+        [JsonProperty("width")]
+        public int Width { get; set; }
+
+        [JsonProperty("height")]
+        public int Height { get; set; }
+
+        [JsonProperty("pixelRatio")]
+        public float PixelRatio { get; set; }
+
+        public int BitmapId { get; internal set; }
+
+        //public Mapsui.Styles.Atlas ToMapsui()
+        //{
+        //    return new Styles.Atlas
+        //    {
+        //        X = this.X,
+        //        Y = this.Y,
+        //        Width = this.Width,
+        //        Height = this.Height,
+        //        PixelRatio = this.PixelRatio
+        //    };
+        //}
+    }
+
     public class Paint
     {
         [JsonProperty("background-color")]
@@ -177,8 +209,9 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
         [JsonProperty("text-line-height")]
         public float? TextLineHeight { get; set; }
 
+        [JsonConverter(typeof(StoppedStringConverter))]
         [JsonProperty("icon-image")]
-        public object IconImage { get; set; }
+        public StoppedString IconImage { get; set; }
 
         [JsonProperty("symbol-spacing")]
         public object SymbolSpacing { get; set; }
@@ -186,8 +219,8 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
         [JsonProperty("icon-padding")]
         public int? IconPadding { get; set; }
 
-        [JsonProperty("icon-size")]
         [JsonConverter(typeof(StoppedDoubleConverter))]
+        [JsonProperty("icon-size")]
         public StoppedDouble IconSize { get; set; }
 
         [JsonProperty("icon-allow-overlap")]
@@ -262,8 +295,8 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
         [JsonProperty("sources")]
         public object Sources { get; set; }
 
-        //[JsonProperty("sprite")]
-        //public string Sprite { get; set; }
+        [JsonProperty("sprite")]
+        public string Sprite { get; set; }
 
         [JsonProperty("glyphs")]
         public string Glyphs { get; set; }

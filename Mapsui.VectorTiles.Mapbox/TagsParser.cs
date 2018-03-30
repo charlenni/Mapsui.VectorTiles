@@ -1,4 +1,6 @@
-﻿namespace Mapsui.VectorTiles.Mapbox
+﻿using Newtonsoft.Json.Linq;
+
+namespace Mapsui.VectorTiles.Mapbox
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -16,7 +18,7 @@
                 var key = keys[(int)evens[i]];
                 var val = values[(int)odds[i]];
                 var valObject = GetAttr(val);
-                result.Add(new Tag(key, valObject.ToString()));
+                result.Add(new Tag(key, new JValue(valObject)));
             }
             return result;
         }

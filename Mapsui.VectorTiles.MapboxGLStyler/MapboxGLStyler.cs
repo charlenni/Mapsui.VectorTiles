@@ -12,6 +12,9 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
         MapboxJson styleJson;
         private PaintConverter paintConverter;
 
+        private int SpriteBitmap;
+        private Dictionary<string, Atlas> SpriteAtlas = new Dictionary<string, Atlas>();
+
         public MapboxGLStyler(Stream input)
         {
             using (var reader = new StreamReader(input))
@@ -20,6 +23,10 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
             if (styleJson.Center != null)
                 Center = Projection.SphericalMercator.FromLonLat(styleJson.Center[0], styleJson.Center[1]);
             Zoom = styleJson.Zoom ?? 12;
+
+            // Save urls for sprite and glyphs
+            SpriteUrl = styleJson.Sprite;
+            GlyphsUrl = styleJson.Glyphs;
 
             var filterConverter = new FilterConverter();
             paintConverter = new PaintConverter();
@@ -40,6 +47,42 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
         public Point Center { get; }
 
         public float Zoom { get; }
+
+        public string SpriteUrl { get; }
+
+        public string GlyphsUrl { get; }
+
+        /// <summary>
+        /// Create sprite atlas from a stream
+        /// </summary>
+        /// <param name="jsonStream">Open stream with Json sprite file</param>
+        /// <param name="atlasBitmapId">Id of Mapsui bitmap with sprite atlas bitmap</param>
+        public void CreateSprites(Stream jsonStream, int atlasBitmapId)
+        {
+            string json;
+
+            using (var reader = new StreamReader(jsonStream))
+            {
+                json = reader.ReadToEnd();
+            }
+
+            CreateSprites(json, atlasBitmapId);
+        }
+
+        /// <summary>
+        /// Create sprite atlas from a string
+        /// </summary>
+        /// <param name="json">String with Json sprite file</param>
+        /// <param name="atlasBitmapId">Id of Mapsui bitmap with sprite atlas bitmap</param>
+        public void CreateSprites(string json, int atlasBitmapId)
+        {
+            SpriteBitmap = atlasBitmapId;
+
+            var sprites = JsonConvert.DeserializeObject<Dictionary<string, Atlas>>(json);
+
+            foreach (var sprite in sprites)
+                SpriteAtlas.Add(sprite.Key, sprite.Value);
+        }
 
         public IList<IStyle> GetStyle(VectorTileLayer layer, EvaluationContext context)
         {
@@ -73,7 +116,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
                     {
                         // Create style for this feature
                         if (styleLayer.Paint != null)
-                            styles.AddRange(paintConverter.ConvertPaint(context, styleLayer));
+                            styles.AddRange(paintConverter.ConvertPaint(context, styleLayer, SpriteAtlas));
                         // TODO: Cache it
                     }
                 }

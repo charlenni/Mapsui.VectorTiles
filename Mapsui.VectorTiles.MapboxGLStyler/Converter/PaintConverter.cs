@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using Mapsui.Styles;
 using Newtonsoft.Json.Linq;
 
@@ -14,7 +15,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
         /// <param name="context">Context to use while evaluating style</param>
         /// <param name="layer">Mapbox GL style layer</param>
         /// <returns>A list of Mapsui Styles</returns>
-        public List<IStyle> ConvertPaint(EvaluationContext context, Layer layer)
+        public List<IStyle> ConvertPaint(EvaluationContext context, Layer layer, Dictionary<string, Atlas> spriteAtlas)
         {
             List<IStyle> result = new List<IStyle>();
 
@@ -28,6 +29,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 BackColor = new Brush(Color.Transparent)
             };
             var styleVector = new VectorStyle();
+            var styleSymbol = new SymbolStyle();
             
             var line = new Pen
             {
@@ -168,17 +170,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
 
             if (layout?.TextField != null)
             {
-                var text = layout.TextField.Trim();
-
-                if (text.StartsWith("{") && text.EndsWith("}"))
-                {
-                    var field = text.TrimStart('{').TrimEnd('}');
-
-                    if (context.Feature.Tags.ContainsKey(field))
-                    {
-                        text = (string) context.Feature.Tags[field];
-                    }
-                }
+                var text = ReplaceFields(layout.TextField.Trim(), context.Feature.Tags);
 
                 if (layout?.TextTransform != null)
                 {
@@ -196,6 +188,21 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 styleLabel.Text = text;
             }
 
+            if (layout?.IconImage != null)
+            {
+                var name = ReplaceFields(ConvertStoppedString(layout.IconImage, context.Zoom), context.Feature.Tags);
+
+                if (!string.IsNullOrEmpty(name) && spriteAtlas.ContainsKey(name))
+                {
+                    var atlas = spriteAtlas[name];
+
+                    if (atlas.BitmapId < 0)
+                        atlas.BitmapId = -1; //Mapsui.Styles.BitmapRegistry.Instance.Register(atlas.ToMapsui());
+
+                    styleSymbol.BitmapId = atlas.BitmapId;
+                }
+            }
+
             if (context.Feature.GeometryType == GeometryType.Polygon)
                 styleVector.Outline = line;
             else if (context.Feature.GeometryType == GeometryType.LineString)
@@ -207,6 +214,51 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 result.Add(styleVector);
 
             return result;
+        }
+
+        /// <summary>
+        /// Calculate the correct string for a stopped function
+        /// No StoppsType needed, because strings couldn't interpolated :)
+        /// </summary>
+        /// <param name="si">Parameters as StoppedString containing string</param>
+        /// <param name="contextZoom">Zoom factor for calculation </param>
+        /// <returns>Value for this stopp respecting zoom factor and type</returns>
+        public string ConvertStoppedString(StoppedString si, float? contextZoom)
+        {
+            if (si == null)
+                return string.Empty;
+
+            // Are there no stopps, but a single value?
+            if (si.SingleVal != string.Empty)
+                return si.SingleVal;
+
+            // Are there no stopps in array
+            if (si.Stops.Count == 0)
+                return string.Empty;
+
+            float zoom = contextZoom ?? 0;
+
+            var lastZoom = float.Parse(si.Stops[0][0].ToString());
+            var lastValue = si.Stops[0][1].ToString();
+
+            if (lastZoom > zoom)
+                return lastValue;
+
+            for (int i = 1; i < si.Stops.Count; i++)
+            {
+                var nextZoom = float.Parse(si.Stops[i][0].ToString());
+                var nextValue = si.Stops[i][1].ToString();
+
+                if (lastZoom <= zoom && zoom <= nextZoom)
+                {
+                    return lastValue;
+                }
+
+                lastZoom = nextZoom;
+                lastValue = nextValue;
+            }
+
+            return lastValue;
         }
 
         /// <summary>
@@ -248,7 +300,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                     switch (stoppsType)
                     {
                         case StoppsType.Interval:
-                            return nextValue;
+                            return lastValue;
                         case StoppsType.Exponential:
                             var progress = zoom - lastZoom;
                             var difference = nextZoom - lastZoom;
@@ -319,7 +371,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                     switch (stoppsType)
                     {
                         case StoppsType.Interval:
-                            return nextValue;
+                            return lastValue;
                         case StoppsType.Exponential:
                             var progress = zoom - lastZoom;
                             var difference = nextZoom - lastZoom;
@@ -510,6 +562,43 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 return color;
 
             return new Color(color.R, color.G, color.B, (int)Math.Round(color.A * (float)opacity));
+        }
+
+        Regex regExFields = new Regex(@"\{(.*?)\}", (RegexOptions)8);
+
+        /// <summary>
+        /// Replace all fields in string with values
+        /// </summary>
+        /// <param name="text">String with fields to replace</param>
+        /// <param name="tags">Tags to replace fields with</param>
+        /// <returns></returns>
+        public string ReplaceFields(string text, TagsCollection tags)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return text;
+
+            var result = text;
+
+            var match = regExFields.Match(text);
+
+            while (match.Success)
+            {
+                var field = match.Groups[1].Captures[0].Value;
+
+                // Search field
+                var replacement = string.Empty;
+
+                if (tags.ContainsKey(field))
+                    replacement = tags[field].ToString();
+
+                // Replace field with new value
+                result = result.Replace(match.Groups[0].Captures[0].Value, replacement);
+
+                // Check for next field
+                match = match.NextMatch();
+            };
+
+            return result;
         }
 
         /// <summary>

@@ -13,11 +13,11 @@ namespace Mapsui.VectorTiles.Filter
             if (context == null || !context.Feature.Tags.ContainsKey(Key))
                 return false;
 
-            if (context.Feature.Tags[Key].Type != JTokenType.Float &&
-                context.Feature.Tags[Key].Type != JTokenType.Integer)
-                return false;
+            if (context.Feature.Tags[Key].Type == JTokenType.Float ||
+                context.Feature.Tags[Key].Type == JTokenType.Integer)
+                return (float)Value >= (float)context.Feature.Tags[Key];
 
-            return (float)Value <= (float)context.Feature.Tags[Key];
+            return false;
         }
     }
 }

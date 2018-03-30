@@ -48,7 +48,7 @@
     <Compile Include="Converter\PaintConverter.cs" />
     <Compile Include="Converter\StoppedStringConverter.cs" />
     <Compile Include="Converter\FilterConverter.cs" />
-    <Compile Include="MapboxGLJSON.cs" />
+    <Compile Include="MapboxGLJson.cs" />
     <Compile Include="MapboxGLStyler.cs" />
     <Compile Include="MapboxGLVectorTileProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
