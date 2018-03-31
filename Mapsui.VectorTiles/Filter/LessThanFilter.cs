@@ -15,7 +15,7 @@ namespace Mapsui.VectorTiles.Filter
 
             if (context.Feature.Tags[Key].Type == JTokenType.Float ||
                 context.Feature.Tags[Key].Type == JTokenType.Integer)
-                return (float)Value > (float)context.Feature.Tags[Key];
+                return (float) context.Feature.Tags[Key] < (float) Value;
 
             return false;
         }
