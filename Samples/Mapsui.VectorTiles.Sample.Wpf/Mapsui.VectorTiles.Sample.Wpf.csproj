@@ -43,19 +43,19 @@
       <HintPath>..\..\packages\ConcurrentHashSet.1.0.2\lib\netstandard1.0\ConcurrentCollections.dll</HintPath>
     </Reference>
     <Reference Include="Mapsui, Version=1.3.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Mapsui.1.3.3-beta.1.226\lib\net45\Mapsui.dll</HintPath>
+      <HintPath>..\..\packages\Mapsui.1.3.3-atlas.7\lib\net45\Mapsui.dll</HintPath>
     </Reference>
     <Reference Include="Mapsui.Geometries, Version=1.3.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Mapsui.1.3.3-beta.1.226\lib\net45\Mapsui.Geometries.dll</HintPath>
+      <HintPath>..\..\packages\Mapsui.1.3.3-atlas.7\lib\net45\Mapsui.Geometries.dll</HintPath>
     </Reference>
     <Reference Include="Mapsui.Rendering.Skia, Version=1.3.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Mapsui.1.3.3-beta.1.226\lib\net45\Mapsui.Rendering.Skia.dll</HintPath>
+      <HintPath>..\..\packages\Mapsui.1.3.3-atlas.7\lib\net45\Mapsui.Rendering.Skia.dll</HintPath>
     </Reference>
     <Reference Include="Mapsui.Rendering.Xaml, Version=1.3.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Mapsui.1.3.3-beta.1.226\lib\net45\Mapsui.Rendering.Xaml.dll</HintPath>
+      <HintPath>..\..\packages\Mapsui.1.3.3-atlas.7\lib\net45\Mapsui.Rendering.Xaml.dll</HintPath>
     </Reference>
     <Reference Include="Mapsui.UI.Wpf, Version=1.3.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Mapsui.1.3.3-beta.1.226\lib\net45\Mapsui.UI.Wpf.dll</HintPath>
+      <HintPath>..\..\packages\Mapsui.1.3.3-atlas.7\lib\net45\Mapsui.UI.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -148,7 +148,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <EmbeddedResource Include="Styles\MapCSS\mapnik.mapcss" />
     <EmbeddedResource Include="Styles\MapboxGL\basic-v9.json" />
     <EmbeddedResource Include="Styles\MapboxGL\klokantech-basic.json" />
     <EmbeddedResource Include="Styles\MapboxGL\osm-liberty.json" />
@@ -173,266 +172,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Styles\osm-liberty\sprite\osm-liberty%402x.png" />
     <EmbeddedResource Include="Styles\osm-liberty\sprite\osm-liberty.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\aerodrome.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\aerodrome.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\aiga_parking1.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\airport.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\airport.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\allotments.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\alpinehut.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\amenity_court.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\amenity_prison.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\arrow.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\arrow_back.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\atm.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\atm2.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\bandb.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\bank2.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\bar.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\beach.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\biergarten.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\bollard.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\bus_station.n.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\bus_stop.p.12.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\bus_stop.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\bus_stop_small.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\cable_car.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\cafe.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\camping.n.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\caravan_park.p.24.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\car_share.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\cemetery_jewish.18.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\chair_lift.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\chalet.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\christian3.p.14.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\cinema.p.24.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\cliff.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\cliff2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\communications.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\danger.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\department_store.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\embassy.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\fast_food.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\firestation.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\florist.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\food_bar.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\food_drinkingtap.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\forest.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\fuel.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\gate.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\gate2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\glacier.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\glacier2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\grave_yard.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\grave_yard_generic.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\guest_house.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\halt.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\helipad.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\hospital.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\hospital.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\hostel.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\hotel2.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\information.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\islamic3.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\jewish3.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\landfill.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\level_crossing.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\level_crossing2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\library.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\liftgate.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\lighthouse.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\lock_gate.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\london-tube-24.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\marsh.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\memorial.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\military_red.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\military_red_hz2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\military_restraint2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\mini_round.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\mosque.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\motel.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\motorway_shield1.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\motorway_shield2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\motorway_shield3.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\motorway_shield4.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\motorway_shield5.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\motorway_shield6.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\mot_shield1.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\mot_shield2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\mot_shield3.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\mot_shield4.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\mot_shield5.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\mot_shield6.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\mot_shield7.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\mot_shield8.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\mud.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\museum.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\nature_reserve.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\nature_reserve2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\nature_reserve2T.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\nature_reserve5.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\nature_reserve6.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\nature_reserveT.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\orchard.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\parking.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\parking.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\parking_private.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\peak.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\pharmacy.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\picnic.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\pint.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\place_of_worship.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\place_of_worship3.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\place_of_worship3.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\playground.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\poi_cave.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\police.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\postoffice.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\post_box.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\post_box.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\post_office.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\post_office.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\power_line.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\power_pole.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\power_tower.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\power_tower_3x3.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\power_tower_5x5.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\power_wind.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\primary_shield1.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\primary_shield2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\primary_shield3.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\primary_shield4.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\primary_shield5.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\primary_shield6.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\primary_shield7.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\primary_shield8.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\pri_shield1.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\pri_shield2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\pri_shield3.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\pri_shield4.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\pri_shield5.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\pri_shield6.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\pri_shield7.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\pri_shield8.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\pub.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\pub.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\quarry.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\quarry2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\recycle.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\recycling.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\recycling.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\rental_bicycle.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\restaurant.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\school.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\scrub.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\secondary_shield1.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\secondary_shield2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\secondary_shield3.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\secondary_shield4.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\secondary_shield5.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\secondary_shield6.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\secondary_shield7.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\secondary_shield8.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\sec_shield1.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\sec_shield2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\sec_shield3.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\sec_shield4.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\sec_shield5.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\sec_shield6.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\sec_shield7.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\sec_shield8.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\shelter2.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\shopping_bicycle.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\shopping_car.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\shopping_car_repair.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\shop_bakery.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\shop_butcher.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\shop_clothes.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\shop_convenience.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\shop_diy.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\shop_hairdresser.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\shop_supermarket.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\sikh.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\sikh3.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\sosphone.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\spring.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\station.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\station_disused.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\station_small.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\synagogue.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\telephone.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tertiary_shield1.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tertiary_shield2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tertiary_shield3.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tertiary_shield4.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tertiary_shield5.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tertiary_shield6.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tertiary_shield7.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tertiary_shield8.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\ter_shield1.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\ter_shield2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\ter_shield3.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\ter_shield4.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\ter_shield5.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\ter_shield6.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\ter_shield7.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\ter_shield8.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\theatre.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\toilets.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tourist_archaeological2.glow.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tourist_memorial.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tower.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tower_water.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\traffic_light.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\transport_ford.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\transport_slipway.p.20.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tree.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tree2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\trunk_shield1.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\trunk_shield2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\trunk_shield3.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\trunk_shield4.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\trunk_shield5.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\trunk_shield6.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\trunk_shield7.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\trunk_shield8.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tru_shield1.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tru_shield2.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tru_shield3.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tru_shield4.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tru_shield5.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tru_shield6.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tru_shield7.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\tru_shield8.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle-livs-fill.14.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle-livs-fill.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle-livs-fill.22.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle-tert-casing.18.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle-tert-casing.24.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle-tert-fill.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle-tert-fill.22.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle-uncl-casing.14.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle-uncl-casing.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle-uncl-casing.18.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle-uncl-casing.24.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle-uncl-fill.12.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle-uncl-fill.14.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle-uncl-fill.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle-uncl-fill.18.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle-uncl-fill.22.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle-uncl-fill.24.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle.13.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle.15.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle.17.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\turning_circle.19.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\view_point.p.16.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\vineyard.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\volcano.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\walking.n.12.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\windmill.png" />
-    <EmbeddedResource Include="Styles\MapCSS\Symbols\zoo.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\packages\SkiaSharp.1.59.3\build\net45\SkiaSharp.targets" Condition="Exists('..\..\packages\SkiaSharp.1.59.3\build\net45\SkiaSharp.targets')" />

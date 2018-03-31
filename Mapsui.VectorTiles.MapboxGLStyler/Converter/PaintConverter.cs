@@ -14,6 +14,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
         /// </summary>
         /// <param name="context">Context to use while evaluating style</param>
         /// <param name="layer">Mapbox GL style layer</param>
+        /// <param name="spriteAtlas">Dictionary with availible sprites</param>
         /// <returns>A list of Mapsui Styles</returns>
         public List<IStyle> ConvertPaint(EvaluationContext context, Layer layer, Dictionary<string, Atlas> spriteAtlas)
         {
@@ -192,14 +193,9 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             {
                 var name = ReplaceFields(ConvertStoppedString(layout.IconImage, context.Zoom), context.Feature.Tags);
 
-                if (!string.IsNullOrEmpty(name) && spriteAtlas.ContainsKey(name))
+                if (!string.IsNullOrEmpty(name) && spriteAtlas.ContainsKey(name) && spriteAtlas[name].BitmapId >= 0)
                 {
-                    var atlas = spriteAtlas[name];
-
-                    if (atlas.BitmapId < 0)
-                        atlas.BitmapId = -1; //Mapsui.Styles.BitmapRegistry.Instance.Register(atlas.ToMapsui());
-
-                    styleSymbol.BitmapId = atlas.BitmapId;
+                    styleSymbol.BitmapId = spriteAtlas[name].BitmapId;
                 }
             }
 
@@ -209,7 +205,11 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 styleVector.Line = line;
 
             if (context.Feature.GeometryType == GeometryType.Point)
+            {
                 result.Add(styleLabel);
+                if (styleSymbol.BitmapId >= 0)
+                    result.Add(styleSymbol);
+            }
             else
                 result.Add(styleVector);
 

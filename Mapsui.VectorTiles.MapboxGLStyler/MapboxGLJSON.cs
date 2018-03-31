@@ -52,19 +52,12 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
         [JsonProperty("pixelRatio")]
         public float PixelRatio { get; set; }
 
-        public int BitmapId { get; internal set; }
+        public int BitmapId { get; internal set; } = -1;
 
-        //public Mapsui.Styles.Atlas ToMapsui()
-        //{
-        //    return new Styles.Atlas
-        //    {
-        //        X = this.X,
-        //        Y = this.Y,
-        //        Width = this.Width,
-        //        Height = this.Height,
-        //        PixelRatio = this.PixelRatio
-        //    };
-        //}
+        public Styles.Atlas ToMapsui()
+        {
+            return new Styles.Atlas(BitmapId, X, Y, Width, Height, PixelRatio);
+        }
     }
 
     public class Paint

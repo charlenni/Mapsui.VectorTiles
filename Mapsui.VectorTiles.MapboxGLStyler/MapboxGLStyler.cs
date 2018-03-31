@@ -55,9 +55,9 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
         /// <summary>
         /// Create sprite atlas from a stream
         /// </summary>
-        /// <param name="jsonStream">Open stream with Json sprite file</param>
-        /// <param name="atlasBitmapId">Id of Mapsui bitmap with sprite atlas bitmap</param>
-        public void CreateSprites(Stream jsonStream, int atlasBitmapId)
+        /// <param name="jsonStream">Stream with Json sprite file information</param>
+        /// <param name="jsonAtlasBitmap">Stream with containing bitmap with sprite atlas bitmap</param>
+        public void CreateSprites(Stream jsonStream, Stream jsonAtlasBitmap)
         {
             string json;
 
@@ -66,13 +66,15 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
                 json = reader.ReadToEnd();
             }
 
+            var atlasBitmapId = Styles.BitmapRegistry.Instance.Register(jsonAtlasBitmap);
+
             CreateSprites(json, atlasBitmapId);
         }
 
         /// <summary>
         /// Create sprite atlas from a string
         /// </summary>
-        /// <param name="json">String with Json sprite file</param>
+        /// <param name="json">String with Json sprite file information</param>
         /// <param name="atlasBitmapId">Id of Mapsui bitmap with sprite atlas bitmap</param>
         public void CreateSprites(string json, int atlasBitmapId)
         {
@@ -81,7 +83,11 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
             var sprites = JsonConvert.DeserializeObject<Dictionary<string, Atlas>>(json);
 
             foreach (var sprite in sprites)
-                SpriteAtlas.Add(sprite.Key, sprite.Value);
+            {
+                sprite.Value.BitmapId = BitmapRegistry.Instance.Register(sprite.Value.ToMapsui());
+                if (sprite.Value.BitmapId >= 0)
+                    SpriteAtlas.Add(sprite.Key, sprite.Value);
+            }
         }
 
         public IList<IStyle> GetStyle(VectorTileLayer layer, EvaluationContext context)

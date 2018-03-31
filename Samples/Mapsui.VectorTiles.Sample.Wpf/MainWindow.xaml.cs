@@ -2,6 +2,7 @@
 using System.IO;
 using System.Windows;
 using Mapsui.Providers;
+using Mapsui.Styles;
 using Mapsui.VectorTiles;
 using Mapsui.VectorTiles.MapboxGLStyler;
 using Newtonsoft.Json;
@@ -16,6 +17,9 @@ namespace Mapsui.VectorTiles.Sample.Wpf
         public MainWindow()
         {
             InitializeComponent();
+
+            Mapsui.Logging.Logger.LogDelegate =
+                (level, s, arg3) => System.Diagnostics.Debug.WriteLine($"Logger: {level} - {s}\nStack:\n{arg3}");
 
             MapControl.RenderMode = UI.Wpf.RenderMode.Skia;
 
@@ -42,12 +46,12 @@ namespace Mapsui.VectorTiles.Sample.Wpf
             var mapStream = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.trails.mbtiles");
             var jsonStyleStream = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.Styles.osm_liberty.osm-liberty.json");
             var jsonStyleAtlas = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.Styles.osm_liberty.sprite.osm-liberty.json");
-            var jsonStyleAtlasBitmap = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.Styles.osm_liberty.sprite.osm-liberty@2x.png");
+            var jsonStyleAtlasBitmap = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.Styles.osm_liberty.sprite.osm-liberty.png");
             var jsonStyler = new MapboxGLStyler.MapboxGLStyler(jsonStyleStream);
 
             if (jsonStyler.SpriteUrl != null)
             {
-                jsonStyler.CreateSprites(jsonStyleAtlas, Styles.BitmapRegistry.Instance.Register(jsonStyleAtlasBitmap));
+                jsonStyler.CreateSprites(jsonStyleAtlas, jsonStyleAtlasBitmap);
             }
 
             MapControl.Map.BackColor = jsonStyler.Background;
