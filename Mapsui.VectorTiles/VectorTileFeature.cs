@@ -4,39 +4,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Mapsui.Providers;
+using Mapsui.Styles;
+using Newtonsoft.Json.Linq;
 
 namespace Mapsui.VectorTiles
 {
-    public sealed class VectorTileFeature
+    public sealed class VectorTileFeature : IFeature
     {
-        string id;
+        public string Id { get; set; }
 
-        public string Id
+        public TagsCollection Tags { get; } = new TagsCollection();
+
+        public GeometryType GeometryType { get; set; } = GeometryType.Unknown;
+
+        public IGeometry Geometry { get; set; }
+
+        public IDictionary<IStyle, object> RenderedGeometry { get; } = null;
+
+        public ICollection<IStyle> Styles { get; } = new List<IStyle>();
+
+        public object this[string key]
         {
-            get { return id; }
-            set { id = value; }
+            get => Tags[key];
+            set => Tags[key] = value as JValue;
         }
 
-        readonly TagsCollection tags = new TagsCollection();
-
-        public TagsCollection Tags
+        public IEnumerable<string> Fields
         {
-            get { return tags; }
-        }
-
-        GeometryType geometryType = GeometryType.Unknown;
-
-        public GeometryType GeometryType
-        {
-            get { return geometryType; }
-            set { geometryType = value; }
-        }
-
-        readonly List<VectorTileGeometry> geometry = new System.Collections.Generic.List<VectorTileGeometry>();
-
-        public List<VectorTileGeometry> Geometry
-        {
-            get { return geometry; }
+            get => Tags.Keys;
         }
 
         public uint Extent
@@ -46,7 +42,7 @@ namespace Mapsui.VectorTiles
 
         public VectorTileFeature(string id = "")
         {
-            this.id = id;
+            this.Id = id;
         }
     }
 }

@@ -1,22 +1,4 @@
-﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2013 Abelshausen Ben
-// 
-// This file is part of OsmSharp.
-// 
-// OsmSharp is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 2 of the License, or
-// (at your option) any later version.
-// 
-// OsmSharp is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
@@ -26,46 +8,27 @@ namespace Mapsui.VectorTiles
     /// <summary>
     /// Represents a simple tags collection based on a list.
     /// </summary>
-    public class TagsCollection : TagsCollectionBase
+    public class TagsCollection : Dictionary<string, JValue>
     {
-        /// <summary>
-        /// Holds the tags.
-        /// </summary>
-        private readonly List<Tag> _tags;
+        private const char KeyValueSeparator = '=';
 
         /// <summary>
         /// Creates a new tags collection.
         /// </summary>
-        public TagsCollection()
+        public TagsCollection(params KeyValuePair<string, JValue>[] tags)
         {
-            _tags = new List<Tag>();
-        }
-
-        /// <summary>
-        /// Creates a new tags collection.
-        /// </summary>
-        /// <param name="capacity">The number of tags the collection can initially store.</param>
-        public TagsCollection(int capacity)
-        {
-            _tags = new List<Tag>(capacity);
-        }
-
-        /// <summary>
-        /// Creates a new tags collection.
-        /// </summary>
-        public TagsCollection(params Tag[] tags)
-        {
-            _tags = new List<Tag>(tags);
+            foreach (var tag in tags)
+                Add(tag.Key, tag.Value);
         }
 
         /// <summary>
         /// Creates a new tags collection initialized with the given existing tags.
         /// </summary>
         /// <param name="tags"></param>
-        public TagsCollection(IEnumerable<Tag> tags)
+        public TagsCollection(IEnumerable<KeyValuePair<string, JValue>> tags)
         {
-            _tags = new List<Tag>();
-            _tags.AddRange(tags);
+            foreach (var tag in tags)
+                Add(tag.Key, tag.Value);
         }
 
         /// <summary>
@@ -74,122 +37,34 @@ namespace Mapsui.VectorTiles
         /// <param name="tags"></param>
         public TagsCollection(IDictionary<string, string> tags)
         {
-            _tags = new List<Tag>();
             if (tags != null)
             {
                 foreach (KeyValuePair<string, string> pair in tags)
                 {
-                    _tags.Add(new Tag(pair.Key, pair.Value));
+                    Add(pair.Key, new JValue(pair.Value));
                 }
             }
         }
 
         /// <summary>
-        /// Returns the number of tags in this collection.
+        /// Adds a tag from a string with key-value-separator
         /// </summary>
-        public override int Count
+        /// <param name="tag">String of key-value-pair separated with key-value-separator</param>
+        public void Add(string tag)
         {
-            get { return _tags.Count; }
-        }
+            var splitPosition = tag.IndexOf(KeyValueSeparator);
 
-        /// <summary>
-        /// Adds a new tag (key-value pair) to this tags collection.
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        public override void Add(string key, JValue value)
-        {
-            _tags.Add(new Tag()
-            {
-                Key = key,
-                Value = value
-            });
-        }
-
-        /// <summary>
-        /// Adds a new tag to this collection.
-        /// </summary>
-        /// <param name="tag"></param>
-        public override void Add(Tag tag)
-        {
-            _tags.Add(tag);
+            Add(tag.Substring(0, splitPosition), new JValue(tag.Substring(splitPosition + 1)));
         }
 
         /// <summary>
         /// Adds a list of tags to this collection.
         /// </summary>
         /// <param name="tags">List of tags</param>
-        public void Add(IEnumerable<Tag> tags)
+        public void Add(IEnumerable<KeyValuePair<string, JValue>> tags)
         {
             foreach(var tag in tags)
-                _tags.Add(tag);
-        }
-
-        /// <summary>
-        /// Adds a new tag (key-value pair) to this tags collection.
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        public override void AddOrReplace(string key, JValue value)
-        {
-            for (int idx = 0; idx < _tags.Count; idx++)
-            {
-                Tag tag = _tags[idx];
-                if (tag.Key == key)
-                {
-                    tag.Value = value;
-                    _tags[idx] = tag;
-                    return;
-                }
-            }
-            this.Add(key, value);
-        }
-
-        /// <inheritdoc />
-        public override void AddOrReplace(Tag tag)
-        {
-            this.AddOrReplace(tag.Key, tag.Value);
-        }
-
-        /// <summary>
-        /// Adds a list of new tags (key-value pair) to this tags collection.
-        /// </summary>
-        /// <param name="tags">List of tags</param>
-        /// <param name="value"></param>
-        public void AddOrReplace(IEnumerable<Tag> tags)
-        {
-            foreach (var tag in tags)
-                AddOrReplace(tag);
-        }
-
-        /// <summary>
-        /// Returns true if the given key is found in this tags collection.
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public override bool ContainsKey(string key)
-        {
-            return _tags.Any(tag => tag.Key == key);
-        }
-
-        /// <summary>
-        /// Returns true if the given key exists and sets the value parameter.
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public override bool TryGetValue(string key, out JValue value)
-        {
-            foreach (var tag in _tags)
-            {
-                if (tag.Key == key)
-                {
-                    value = tag.Value;
-                    return true;
-                }
-            }
-            value = null;
-            return false;
+                Add(tag.Key, tag.Value);
         }
 
         /// <summary>
@@ -198,36 +73,29 @@ namespace Mapsui.VectorTiles
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public override bool ContainsKeyValue(string key, JValue value)
+        public bool ContainsKeyValue(string key, JValue value)
         {
-            return _tags.Any(tag => tag.Key == key && tag.Value.Equals(value));
+            if (TryGetValue(key, out JValue val))
+                return val.Equals(value);
+
+            return false;
         }
 
         /// <summary>
-        /// Clears all tags.
+        /// Returns true if one of the given keys exists in this tag collection.
         /// </summary>
-        public override void Clear()
+        /// <param name="keys">Collection of keys to check</param>
+        /// <returns>True, if one key in keys is containd in this collection</returns>
+        public virtual bool ContainsOneOfKeys(ICollection<string> keys)
         {
-            _tags.Clear();
-        }
-
-        /// <summary>
-        /// Returns the enumerator for this tags collection.
-        /// </summary>
-        /// <returns></returns>
-        public override IEnumerator<Tag> GetEnumerator()
-        {
-            return _tags.GetEnumerator();
-        }
-
-        /// <summary>
-        /// Removes all tags with the given key.
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public override bool RemoveKey(string key)
-        {
-            return _tags.RemoveAll(tag => tag.Key == key) > 0;
+            foreach (var tag in this)
+            {
+                if (keys.Contains(tag.Key))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>
@@ -236,9 +104,15 @@ namespace Mapsui.VectorTiles
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public override bool RemoveKeyValue(string key, JValue value)
+        public bool RemoveKeyValue(string key, JValue value)
         {
-            return _tags.RemoveAll(tag => tag.Key == key && tag.Value.Equals(value)) > 0;
+            if (ContainsKeyValue(key, value))
+            {
+                Remove(key);
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -248,9 +122,9 @@ namespace Mapsui.VectorTiles
         public override string ToString()
         {
             StringBuilder tags = new StringBuilder();
-            foreach (Tag tag in this)
+            foreach (var tag in this)
             {
-                tags.Append(tag.ToString());
+                tags.Append($"{tag.Key}{KeyValueSeparator}{tag.Value}");
                 tags.Append(',');
             }
             if (tags.Length > 0)
@@ -258,15 +132,6 @@ namespace Mapsui.VectorTiles
                 return tags.ToString(0, tags.Length - 1);
             }
             return "empty";
-        }
-
-        /// <summary>
-        /// Removes all tags that matches the given predicate.
-        /// </summary>
-        /// <param name="predicate"></param>
-        public override void RemoveAll(System.Predicate<Tag> predicate)
-        {
-            _tags.RemoveAll(predicate);
         }
     }
 }

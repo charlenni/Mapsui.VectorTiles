@@ -18,8 +18,8 @@ namespace Mapsui.VectorTiles.Sample.Wpf
         {
             InitializeComponent();
 
-            Mapsui.Logging.Logger.LogDelegate =
-                (level, s, arg3) => System.Diagnostics.Debug.WriteLine($"Logger: {level} - {s}\nStack:\n{arg3}");
+            //Mapsui.Logging.Logger.LogDelegate =
+            //    (level, s, arg3) => System.Diagnostics.Debug.WriteLine($"Logger: {level} - {s}\nStack:\n{arg3}");
 
             MapControl.RenderMode = UI.Wpf.RenderMode.Skia;
 
@@ -28,8 +28,8 @@ namespace Mapsui.VectorTiles.Sample.Wpf
             //// Get all images
             //var regex = new Regex(Regex.Escape("."));
             var assembly = this.GetType().Assembly;
-            foreach (var name in assembly.GetManifestResourceNames())
-                System.Diagnostics.Debug.WriteLine(name);
+            //foreach (var name in assembly.GetManifestResourceNames())
+            //    System.Diagnostics.Debug.WriteLine(name);
                 //{
                 //    if (name.Contains("Symbols"))
                 //    {

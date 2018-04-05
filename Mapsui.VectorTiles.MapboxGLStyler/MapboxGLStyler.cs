@@ -10,7 +10,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
     public class MapboxGLStyler : IVectorTileStyler
     {
         MapboxJson styleJson;
-        private PaintConverter paintConverter;
+        private StyleLayerConverter _styleLayerConverter;
 
         private int SpriteBitmap;
         private Dictionary<string, Atlas> SpriteAtlas = new Dictionary<string, Atlas>();
@@ -29,12 +29,12 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
             GlyphsUrl = styleJson.Glyphs;
 
             var filterConverter = new FilterConverter();
-            paintConverter = new PaintConverter();
+            _styleLayerConverter = new StyleLayerConverter();
 
             foreach (var layer in styleJson.Layers)
             {
                 if (layer.Type.Equals("background") && layer.Paint.BackgroundColor != null)
-                    Background = paintConverter.ConvertColor(layer.Paint.BackgroundColor);
+                    Background = _styleLayerConverter.ConvertColor(layer.Paint.BackgroundColor);
 
                 // Create filters for each layer
                 if (layer.NativeFilter != null)
@@ -78,13 +78,15 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
         /// <param name="atlasBitmapId">Id of Mapsui bitmap with sprite atlas bitmap</param>
         public void CreateSprites(string json, int atlasBitmapId)
         {
-            SpriteBitmap = atlasBitmapId;
-
             var sprites = JsonConvert.DeserializeObject<Dictionary<string, Atlas>>(json);
 
             foreach (var sprite in sprites)
             {
+                // Set BitmapId for Mapsui.Atlas to atlasBitmapId
+                sprite.Value.BitmapId = atlasBitmapId;
+                // Replace BitmapId with correct BitmapId of new sprite
                 sprite.Value.BitmapId = BitmapRegistry.Instance.Register(sprite.Value.ToMapsui());
+                // Add new sprite to atlas
                 if (sprite.Value.BitmapId >= 0)
                     SpriteAtlas.Add(sprite.Key, sprite.Value);
             }
@@ -122,7 +124,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
                     {
                         // Create style for this feature
                         if (styleLayer.Paint != null)
-                            styles.AddRange(paintConverter.ConvertPaint(context, styleLayer, SpriteAtlas));
+                            styles.AddRange(_styleLayerConverter.Convert(context, styleLayer, SpriteAtlas));
                         // TODO: Cache it
                     }
                 }

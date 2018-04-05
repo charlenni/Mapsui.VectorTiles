@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
 {
-    public class PaintConverter
+    public class StyleLayerConverter
     {
         /// <summary>
         /// Convert given context with Mapbox GL styling layer to a Mapsui Style list
@@ -16,21 +16,40 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
         /// <param name="layer">Mapbox GL style layer</param>
         /// <param name="spriteAtlas">Dictionary with availible sprites</param>
         /// <returns>A list of Mapsui Styles</returns>
-        public List<IStyle> ConvertPaint(EvaluationContext context, Layer layer, Dictionary<string, Atlas> spriteAtlas)
+        public IList<IStyle> Convert(EvaluationContext context, Layer layer, Dictionary<string, Atlas> spriteAtlas)
+        {
+            switch (layer.Type)
+            {
+                case "fill":
+                    return ConvertFillLayer(context, layer, spriteAtlas);
+                case "line":
+                    return ConvertLineLayer(context, layer, spriteAtlas);
+                case "symbol":
+                    return ConvertSymbolLayer(context, layer, spriteAtlas);
+                case "circle":
+                    return new List<IStyle>();
+                case "raster":
+                    return new List<IStyle>();
+                case "background":
+                    return new List<IStyle>();
+            }
+
+            return new List<IStyle>();
+        }
+
+        public IList<IStyle> ConvertFillLayer(EvaluationContext context, Layer layer, Dictionary<string, Atlas> spriteAtlas)
         {
             List<IStyle> result = new List<IStyle>();
 
-            var paint = layer.Paint;
-            var layout = layer.Layout;
+            // visibility
+            //   Optional enum. One of visible, none. Defaults to visible.
+            //   The display of this layer. none hides this layer.
+            if (layer.Layout?.Visibility != null && layer.Layout.Visibility.Equals("none"))
+                return result;
 
-            var styleLabel = new LabelStyle
-            {
-                Halo = new Pen { Color = Color.Transparent, Width = 0 },
-                CollisionDetection = true,
-                BackColor = new Brush(Color.Transparent)
-            };
+            var paint = layer.Paint;
+
             var styleVector = new VectorStyle();
-            var styleSymbol = new SymbolStyle();
             
             var line = new Pen
             {
@@ -38,6 +57,11 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 PenStrokeCap = PenStrokeCap.Butt,
             };
 
+            // fill-color
+            //   Optional color. Defaults to #000000. Disabled by fill-pattern. Exponential.
+            //   The color of the filled part of this layer.This color can be specified as 
+            //   rgba with an alpha component and the color's opacity will not affect the 
+            //   opacity of the 1px stroke, if it is used.
             if (paint?.FillColor != null)
             {
                 styleVector.Fill = new Styles.Brush(ConvertStoppedColor(paint.FillColor, context.Zoom));
@@ -47,11 +71,18 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                     line.Color = styleVector.Fill.Color;
             }
 
+            // fill-outline-color
+            //   Optional color. Disabled by fill-pattern. Requires fill-antialias = true. Exponential. 
+            //   The outline color of the fill. Matches the value of fill-color if unspecified.
             if (paint?.FillOutlineColor != null) // && paint.FillOutlineColor is string)
             {
                 line.Color = ConvertStoppedColor(paint.FillOutlineColor, context.Zoom);
             }
 
+            // fill-opacity
+            //   Optional number. Defaults to 1. Exponential.
+            //   The opacity of the entire fill layer. In contrast to the fill-color, this 
+            //   value will also affect the 1px stroke around the fill, if the stroke is used.
             if (paint?.FillOpacity != null)
             {
                 var opacity = paint.FillOpacity;
@@ -59,6 +90,58 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 line.Color = ColorOpacity(line.Color, opacity);
             }
 
+            // fill-antialias
+            //   Optional boolean. Defaults to true. Interval.
+            //   Whether or not the fill should be antialiased.
+
+            // fill-translate
+            //   Optional array. Units in pixels. Defaults to 0,0. Exponential.
+            //   The geometry's offset. Values are [x, y] where negatives indicate left and up, 
+            //   respectively.
+
+            // fill-translate-anchor
+            //   Optional enum. One of map, viewport. Defaults to map. Requires fill-translate. Interval.
+            //   Control whether the translation is relative to the map (north) or viewport (screen)
+
+            // fill-pattern
+            //   Optional string. Interval.
+            //   Name of image in sprite to use for drawing image fills. For seamless patterns, 
+            //   image width and height must be a factor of two(2, 4, 8, …, 512).
+
+            if (context.Feature.GeometryType == GeometryType.Polygon)
+                styleVector.Outline = line;
+            else if (context.Feature.GeometryType == GeometryType.LineString)
+                styleVector.Line = line;
+
+            result.Add(styleVector);
+
+            return result;
+        }
+
+        public IList<IStyle> ConvertLineLayer(EvaluationContext context, Layer layer, Dictionary<string, Atlas> spriteAtlas)
+        {
+            List<IStyle> result = new List<IStyle>();
+
+            // visibility
+            //   Optional enum. One of visible, none. Defaults to visible.
+            //   The display of this layer. none hides this layer.
+            if (layer.Layout?.Visibility != null && layer.Layout.Visibility.Equals("none"))
+                return result;
+
+            var paint = layer.Paint;
+            var layout = layer.Layout;
+
+            var styleVector = new VectorStyle();
+
+            var line = new Pen
+            {
+                Width = 1,
+                PenStrokeCap = PenStrokeCap.Butt,
+            };
+
+            // line-cap
+            //   Optional enum. One of butt, round, square. Defaults to butt. Interval.
+            //   The display of line endings.
             if (layout?.LineCap != null)
             {
                 switch (layout.LineCap)
@@ -72,9 +155,15 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                     case "square":
                         line.PenStrokeCap = PenStrokeCap.Square;
                         break;
+                    default:
+                        line.PenStrokeCap = PenStrokeCap.Butt;
+                        break;
                 }
             }
 
+            // line-join
+            //   Optional enum. One of bevel, round, miter. Defaults to miter. Interval.
+            //   The display of lines when joining.
             if (layout?.LineJoin != null)
             {
                 switch (layout.LineJoin)
@@ -93,26 +182,36 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                         break;
                 }
             }
-            else
-            {
-                // Default is mitter
-            }
 
+            // line-color
+            //   Optional color. Defaults to #000000. Disabled by line-pattern. Exponential.
+            //   The color with which the line will be drawn.
             if (paint?.LineColor != null)
             {
                 line.Color = ConvertStoppedColor(paint.LineColor, context.Zoom);
             }
 
+            // line-width
+            //   Optional number.Units in pixels.Defaults to 1. Exponential.
+            //   Stroke thickness.
             if (paint?.LineWidth != null)
             {
                 line.Width = ConvertStoppedDouble(paint.LineWidth, context.Zoom);
             }
 
+            // line-opacity
+            //   Optional number. Defaults to 1. Exponential.
+            //   The opacity at which the line will be drawn.
             if (paint?.LineOpacity != null)
             {
                 line.Color = new Color(line.Color.R, line.Color.G, line.Color.B, (int)Math.Round(ConvertStoppedDouble(paint.LineOpacity, context.Zoom) * 255.0));
             }
 
+            // line-dasharray
+            //   Optional array. Units in line widths.Disabled by line-pattern. Interval.
+            //   Specifies the lengths of the alternating dashes and gaps that form the dash pattern. 
+            //   The lengths are later scaled by the line width.To convert a dash length to pixels, 
+            //   multiply the length by the current line width.
             if (paint?.LineDasharray != null)
             {
                 if (paint.LineDasharray is JArray jsonDashArray)
@@ -127,52 +226,110 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 }
             }
 
-            if (paint?.TextColor != null)
+
+            // line-miter-limit
+            //   Optional number. Defaults to 2. Requires line-join = miter. Exponential.
+            //   Used to automatically convert miter joins to bevel joins for sharp angles.
+
+            // line-round-limit
+            //   Optional number. Defaults to 1.05. Requires line-join = round. Exponential.
+            //   Used to automatically convert round joins to miter joins for shallow angles.
+
+            // line-translate
+            //   Optional array. Units in pixels.Defaults to 0,0. Exponential.
+            //   The geometry's offset. Values are [x, y] where negatives indicate left and up, 
+            //   respectively.
+
+            // line-translate-anchor
+            //   Optional enum. One of map, viewport.Defaults to map. Requires line-translate. Interval.
+            //   Control whether the translation is relative to the map (north) or viewport (screen)
+
+            // line-gap-width
+            //   Optional number.Units in pixels.Defaults to 0. Exponential.
+            //   Draws a line casing outside of a line's actual path.Value indicates the width of 
+            //   the inner gap.
+
+            // line-offset
+            //   Optional number. Units in pixels. Defaults to 0. Exponential.
+            //   The line's offset perpendicular to its direction. Values may be positive or negative, 
+            //   where positive indicates "rightwards" (if you were moving in the direction of the line) 
+            //   and negative indicates "leftwards".
+
+            // line-blur
+            //   Optional number. Units in pixels.Defaults to 0. Exponential.
+            //   Blur applied to the line, in pixels.
+
+            // line-pattern
+            //   Optional string. Interval.
+            //   Name of image in sprite to use for drawing image lines. For seamless patterns, image 
+            //   width must be a factor of two (2, 4, 8, …, 512).
+
+
+            if (context.Feature.GeometryType == GeometryType.Polygon)
+                styleVector.Outline = line;
+            else if (context.Feature.GeometryType == GeometryType.LineString)
+                styleVector.Line = line;
+
+            result.Add(styleVector);
+
+            return result;
+        }
+
+        public IList<IStyle> ConvertSymbolLayer(EvaluationContext context, Layer layer, Dictionary<string, Atlas> spriteAtlas)
+        {
+            List<IStyle> result = new List<IStyle>();
+
+            // visibility
+            //   Optional enum. One of visible, none. Defaults to visible.
+            //   The display of this layer. none hides this layer.
+            if (layer.Layout?.Visibility != null && layer.Layout.Visibility.Equals("none"))
+                return result;
+
+            var paint = layer.Paint;
+            var layout = layer.Layout;
+
+            var styleLabel = new LabelStyle
             {
-                styleLabel.ForeColor = ConvertStoppedColor(paint.TextColor, context.Zoom);
-            }
+                Halo = new Pen { Color = Color.Transparent, Width = 0 },
+                CollisionDetection = true,
+                BackColor = null
+            };
+            var styleVector = new VectorStyle();
+            var styleSymbol = new SymbolStyle();
 
-            if (paint?.TextHaloColor != null)
+            var line = new Pen
             {
-                styleLabel.Halo.Color = ConvertStoppedColor(paint.TextHaloColor, context.Zoom);
-            }
+                Width = 1,
+                PenStrokeCap = PenStrokeCap.Butt,
+            };
 
-            if (paint?.TextHaloWidth != null)
-            {
-                styleLabel.Halo.Width = ConvertStoppedDouble(paint.TextHaloWidth, context.Zoom);
-            }
 
-            if (paint?.TextOpacity != null)
-            {
-            }
 
-            if (layout?.TextFont != null)
-            {
-                var fontName = string.Empty;
+            // symbol-placement
+            //   Optional enum. One of point, line. Defaults to point. Interval.
+            //   Label placement relative to its geometry. line can only be used on 
+            //   LineStrings and Polygons.
 
-                foreach (var font in layout.TextFont)
-                {
-                    // TODO: Check for fonts
-                    //if (font.exists)
-                    {
-                        fontName = (string) font;
-                        break;
-                    }
-                }
+            // symbol-spacing
+            //   Optional number. Units in pixels. Defaults to 250. Requires symbol-placement = line. Exponential.
+            //   Distance between two symbol anchors.
 
-                if (!string.IsNullOrWhiteSpace(fontName))
-                    styleLabel.Font.FontFamily = fontName;
-            }
+            // symbol-avoid-edges
+            //   Optional boolean. Defaults to false. Interval.
+            //   If true, the symbols will not cross tile edges to avoid mutual collisions.
+            //   Recommended in layers that don't have enough padding in the vector tile to prevent 
+            //   collisions, or if it is a point symbol layer placed after a line symbol layer.
 
-            if (layout?.TextSize != null)
-            {
-                styleLabel.Font.Size = ConvertStoppedDouble(layout.TextSize, context.Zoom);
-            }
-
+            // text-field
+            //   Optional string. Interval.
+            //   Value to use for a text label. Feature properties are specified using tokens like {field_name}.
             if (layout?.TextField != null)
             {
                 var text = ReplaceFields(layout.TextField.Trim(), context.Feature.Tags);
 
+                // text-transform
+                //   Optional enum. One of none, uppercase, lowercase. Defaults to none. Requires text-field. Interval.
+                //   Specifies how to capitalize text, similar to the CSS text-transform property.
                 if (layout?.TextTransform != null)
                 {
                     switch (layout.TextTransform)
@@ -187,8 +344,152 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 }
 
                 styleLabel.Text = text;
+
+                // text-color
+                //   Optional color. Defaults to #000000. Requires text-field. Exponential.
+                //   The color with which the text will be drawn.
+                if (paint?.TextColor != null)
+                {
+                    styleLabel.ForeColor = ConvertStoppedColor(paint.TextColor, context.Zoom);
+                }
+
+                // text-opacity
+                //   Optional number. Defaults to 1. Requires text-field. Exponential.
+                //   The opacity at which the text will be drawn.
+                if (paint?.TextOpacity != null)
+                {
+                }
+
+                // text-halo-color
+                //   Optional color. Defaults to rgba(0, 0, 0, 0). Requires text-field. Exponential.
+                //   The color of the text's halo, which helps it stand out from backgrounds.
+                if (paint?.TextHaloColor != null)
+                {
+                    styleLabel.Halo.Color = ConvertStoppedColor(paint.TextHaloColor, context.Zoom);
+                }
+
+                //text-halo-width
+                //   Optional number. Units in pixels. Defaults to 0. Requires text-field. Exponential.
+                //   Distance of halo to the font outline. Max text halo width is 1/4 of the font-size.
+                if (paint?.TextHaloWidth != null)
+                {
+                    styleLabel.Halo.Width = ConvertStoppedDouble(paint.TextHaloWidth, context.Zoom);
+                }
+
+                // text-font
+                //   Optional array. Defaults to Open Sans Regular, Arial Unicode MS Regular. Requires text-field. Interval.
+                //   Font stack to use for displaying text.
+                if (layout?.TextFont != null)
+                {
+                    var fontName = string.Empty;
+
+                    foreach (var font in layout.TextFont)
+                    {
+                        // TODO: Check for fonts
+                        //if (font.exists)
+                        {
+                            fontName = (string)font;
+                            break;
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(fontName))
+                        styleLabel.Font.FontFamily = fontName;
+                }
+
+                // text-size
+                //   Optional number. Units in pixels. Defaults to 16. Requires text-field. Exponential.
+                //   Font size.
+                if (layout?.TextSize != null)
+                {
+                    styleLabel.Font.Size = ConvertStoppedDouble(layout.TextSize, context.Zoom);
+                }
+
+                // text-rotation-alignment
+                //   Optional enum. One of map, viewport. Defaults to viewport. Requires text-field. Interval.
+                //   Orientation of text when map is rotated.
+
+                // text-translate
+                //   Optional array. Units in pixels. Defaults to 0, 0. Requires text-field. Exponential.
+                //   Distance that the text's anchor is moved from its original placement.Positive values 
+                //   indicate right and down, while negative values indicate left and up.
+                if (paint?.TextTranslate != null)
+                {
+                    // text-translate-anchor
+                    //   Optional enum. One of map, viewport. Defaults to map. Requires text-field. Requires text-translate. Interval.
+                    //   Control whether the translation is relative to the map(north) or viewport(screen).
+                }
+
+                // text-max-width
+                //   Optional number. Units in em. Defaults to 10. Requires text-field. Exponential.
+                //   The maximum line width for text wrapping.
+
+                // text-line-height
+                //   Optional number. Units in em. Defaults to 1.2. Requires text-field. Exponential.
+                //   Text leading value for multi-line text.
+
+                // text-letter-spacing
+                //   Optional number. Units in em. Defaults to 0. Requires text-field. Exponential.
+                //   Text tracking amount.
+
+                // text-justify
+                //   Optional enum. One of left, center, right. Defaults to center. Requires text-field. Interval.
+                //   Text justification options.
+
+                // text-anchor
+                //   Optional enum. One of center, left, right, top, bottom, top-left, top-right, bottom-left, 
+                //   bottom-right. Defaults to center. Requires text-field. Interval.
+                //   Part of the text placed closest to the anchor.
+                if (layout?.TextAnchor != null)
+                {
+                }
+
+                // text-max-angle
+                //   Optional number. Units in degrees. Defaults to 45. Requires text-field. 
+                //   Requires symbol-placement = line. Exponential.
+                //   Maximum angle change between adjacent characters.
+
+                // text-rotate
+                //   Optional number. Units in degrees. Defaults to 0. Requires text-field. Exponential.
+                //   Rotates the text clockwise.
+
+                // text-padding
+                //   Optional number. Units in pixels. Defaults to 2. Requires text-field. Exponential.
+                //   Size of the additional area around the text bounding box used for detecting symbol collisions.
+
+                // text-keep-upright
+                //   Optional boolean. Defaults to true. Requires text-field. Requires text-rotation-alignment = map.
+                //   Requires symbol-placement = line. Interval.
+                //   If true, the text may be flipped vertically to prevent it from being rendered upside-down.
+
+                // text-offset
+                //   Optional array. Units in ems. Defaults to 0,0. Requires text-field. Exponential.
+                //   Offset distance of text from its anchor. Positive values indicate right and down, 
+                //   while negative values indicate left and up.
+                if (layout?.TextOffset != null)
+                {
+                }
+
+                // text-allow-overlap
+                //   Optional boolean. Defaults to false. Requires text-field. Interval.
+                //   If true, the text will be visible even if it collides with other previously drawn symbols.
+
+                // text-ignore-placement
+                //   Optional boolean. Defaults to false. Requires text-field. Interval.
+                //   If true, other symbols can be visible even if they collide with the text.
+
+                // text-optional
+                //   Optional boolean. Defaults to false. Requires text-field. Requires icon-image. Interval.
+                //   If true, icons will display without their corresponding text when the text collides with other symbols and the icon does not.
+
+                // text-halo-blur
+                //   Optional number. Units in pixels. Defaults to 0. Requires text-field. Exponential.
+                //   The halo's fadeout distance towards the outside.
             }
 
+            // icon-image
+            //   Optional string.
+            //   A string with { tokens } replaced, referencing the data property to pull from. Interval.
             if (layout?.IconImage != null)
             {
                 var name = ReplaceFields(ConvertStoppedString(layout.IconImage, context.Zoom), context.Feature.Tags);
@@ -197,6 +498,76 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 {
                     styleSymbol.BitmapId = spriteAtlas[name].BitmapId;
                 }
+
+                // icon-allow-overlap
+                //   Optional boolean. Defaults to false. Requires icon-image. Interval.
+                //   If true, the icon will be visible even if it collides with other previously drawn symbols.
+
+                // icon-ignore-placement
+                //   Optional boolean. Defaults to false. Requires icon-image. Interval.
+                //   If true, other symbols can be visible even if they collide with the icon.
+
+                // icon-optional
+                //   Optional boolean. Defaults to false. Requires icon-image. Requires text-field. Interval.
+                //   If true, text will display without their corresponding icons when the icon collides 
+                //   with other symbols and the text does not.
+
+                // icon-rotation-alignment
+                //   Optional enum. One of map, viewport. Defaults to viewport. Requires icon-image. Interval.
+                //   Orientation of icon when map is rotated.
+
+                // icon-size
+                //   Optional number. Defaults to 1. Requires icon-image. Exponential.
+                //   Scale factor for icon. 1 is original size, 3 triples the size.
+
+                // icon-rotate
+                //   Optional number.Units in degrees.Defaults to 0. Requires icon-image. Exponential.
+                //   Rotates the icon clockwise.
+
+                // icon-padding
+                //   Optional number. Units in pixels. Defaults to 2. Requires icon-image. Exponential.
+                //   Size of the additional area around the icon bounding box used for detecting symbol collisions.
+
+                // icon-keep-upright
+                //   Optional boolean. Defaults to false. Requires icon-image. Requires icon-rotation-alignment = map. Interval.
+                //   Requires symbol-placement = line.
+                //   If true, the icon may be flipped to prevent it from being rendered upside-down.
+
+                // icon-offset
+                //   Optional array. Defaults to 0,0. Requires icon-image. Exponential.
+                //   Offset distance of icon from its anchor. Positive values indicate right and down, 
+                //   while negative values indicate left and up.
+
+                // icon-opacity
+                //   Optional number. Defaults to 1. Requires icon-image. Exponential.
+                //   The opacity at which the icon will be drawn.
+
+                // icon-color
+                //   Optional color. Defaults to #000000. Requires icon-image. Exponential.
+                //   The color of the icon. This can only be used with sdf icons.
+
+                // icon-halo-color
+                //   Optional color. Defaults to rgba(0, 0, 0, 0). Requires icon-image. Exponential.
+                //   The color of the icon's halo. Icon halos can only be used with sdf icons.
+
+                // icon-halo-width
+                //   Optional number. Units in pixels. Defaults to 0. Requires icon-image. Exponential.
+                //   Distance of halo to the icon outline.
+
+                // icon-halo-blur
+                //   Optional number. Units in pixels. Defaults to 0. Requires icon-image. Exponential.
+                //   Fade out the halo towards the outside.
+
+                // icon-translate
+                //   Optional array. Units in pixels. Defaults to 0, 0. Requires icon-image. Exponential.
+                //   Distance that the icon's anchor is moved from its original placement.
+                //   Positive values indicate right and down, while negative values indicate left and up.
+
+                // icon-translate-anchor
+                //   Optional enum. One of map, viewport. Defaults to map. Requires icon-image. Requires icon-translate. Interval.
+                //   Control whether the translation is relative to the map(north) or viewport(screen).
+
+
             }
 
             if (context.Feature.GeometryType == GeometryType.Polygon)
@@ -285,22 +656,22 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             float zoom = contextZoom ?? 0;
 
             var lastZoom = float.Parse(sc.Stops[0][0].ToString());
-            var lastValue = ConvertColor(sc.Stops[0][1].ToString());
+            var lastValue = sc.Stops[0][1].ToString();
 
             if (lastZoom > zoom)
-                return lastValue;
+                return ConvertColor(lastValue);
 
             for (int i = 1; i < sc.Stops.Count; i++)
             {
                 var nextZoom = float.Parse(sc.Stops[i][0].ToString());
-                var nextValue = ConvertColor(sc.Stops[i][1].ToString());
+                var nextValue = sc.Stops[i][1].ToString();
 
                 if (lastZoom <= zoom && zoom <= nextZoom)
                 {
                     switch (stoppsType)
                     {
                         case StoppsType.Interval:
-                            return lastValue;
+                            return ConvertColor(lastValue);
                         case StoppsType.Exponential:
                             var progress = zoom - lastZoom;
                             var difference = nextZoom - lastZoom;
@@ -311,15 +682,17 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                                 factor = progress / difference;
                             else
                                 factor =  (float)((Math.Pow(sc.Base, progress) - 1) / (Math.Pow(sc.Base, difference) - 1));
-                            var r = (int)Math.Round((nextValue.R - lastValue.R) * factor);
-                            var g = (int)Math.Round((nextValue.G - lastValue.G) * factor);
-                            var b = (int)Math.Round((nextValue.B - lastValue.B) * factor);
-                            var a = (int)Math.Round((nextValue.A - lastValue.A) * factor);
+                            var nextColor = ConvertColor(nextValue);
+                            var lastColor = ConvertColor(lastValue);
+                            var r = (int)Math.Round((nextColor.R - lastColor.R) * factor);
+                            var g = (int)Math.Round((nextColor.G - lastColor.G) * factor);
+                            var b = (int)Math.Round((nextColor.B - lastColor.B) * factor);
+                            var a = (int)Math.Round((nextColor.A - lastColor.A) * factor);
                             return new Color(r, g, b, a);
                         case StoppsType.Categorical:
                             // ==
                             if (nextZoom - zoom < float.Epsilon)
-                                return nextValue;
+                                return ConvertColor(nextValue);
                             break;
                     }
                 }
@@ -328,7 +701,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 lastValue = nextValue;
             }
 
-            return lastValue;
+            return ConvertColor(lastValue);
         }
 
         /// <summary>
@@ -395,6 +768,8 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             return lastValue;
         }
 
+        private readonly Dictionary<string, Color> colorCache = new Dictionary<string, Color>();
+
         /// <summary>
         /// Converts a string in Mapbox GL format to a Mapsui Color
         /// </summary>
@@ -402,7 +777,8 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
         /// <returns>Converted Mapsui Color</returns>
         public Color ConvertColor(string from)
         {
-            Color result = default(Color);
+            if (colorCache.TryGetValue(from, out var result))
+                return result;
 
             from = from.Trim();
 
@@ -482,6 +858,9 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
 
                 result = ColorFromHsl(h / 360.0f, s / 100.0f, l / 100.0f, a);
             }
+
+            // Save for potential later use
+            colorCache[from] = result;
 
             return result;
         }

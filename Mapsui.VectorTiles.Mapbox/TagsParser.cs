@@ -18,7 +18,7 @@ namespace Mapsui.VectorTiles.Mapbox
                 var key = keys[(int)evens[i]];
                 var val = values[(int)odds[i]];
                 var valObject = GetAttr(val);
-                result.Add(new Tag(key, new JValue(valObject)));
+                result.Add(key, new JValue(valObject));
             }
             return result;
         }

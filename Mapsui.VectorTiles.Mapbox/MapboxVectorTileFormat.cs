@@ -1,5 +1,9 @@
 ﻿namespace Mapsui.VectorTiles.Mapbox
 {
+    /// <summary>
+    /// Objects for Mapbox Pbf format
+    /// </summary>
+    
     [ProtoBuf.ProtoContract(Name = @"tile")]
     public sealed class Tile : ProtoBuf.IExtensible
     {

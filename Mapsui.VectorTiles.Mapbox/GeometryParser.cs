@@ -5,7 +5,16 @@ namespace Mapsui.VectorTiles.Mapbox
 {
     public static class GeometryParser
     {
-        public static List<VectorTileGeometry> ParseGeometry(List<uint> geom, Tile.GeomType geomType)
+        /// <summary>
+        /// Convert Mapbox tile format (see https://www.mapbox.com/vector-tiles/specification/)
+        /// </summary>
+        /// <param name="geom">Geometry information in Mapbox format</param>
+        /// <param name="geomType">GeometryType of this geometry</param>
+        /// <param name="offsetX">World coordinates of left top edge of tile</param>
+        /// <param name="offsetY">World coordinates of left top edge of tile</param>
+        /// <param name="factor">Factor for converting Mapbox coordinates to world coordinates</param>
+        /// <returns>List of list of points in world coordinates</returns>
+        public static List<List<Point>> ParseGeometry(List<uint> geom, Tile.GeomType geomType, double offsetX, double offsetY, double factor)
         {
             const uint cmdMoveTo = 1;
             //const uint cmdLineTo = 2;
@@ -14,8 +23,8 @@ namespace Mapsui.VectorTiles.Mapbox
 
             long x = 0;
             long y = 0;
-            var coordsList = new List<VectorTileGeometry>();
-            VectorTileGeometry coords = null;
+            var coordsList = new List<List<Point>>();
+            List<Point> coords = null;
             var geometryCount = geom.Count;
             uint length = 0;
             uint command = 0;
@@ -33,16 +42,16 @@ namespace Mapsui.VectorTiles.Mapbox
                 {
                     if (command == cmdMoveTo)
                     {
-                        coords = new VectorTileGeometry();
+                        coords = new List<Point>();
                         coordsList.Add(coords);
                     }
                 }
 
                 if (command == cmdSegEnd)
                 {
-                    if (geomType != Tile.GeomType.Point && !(coords.Points.Count == 0))
+                    if (geomType != Tile.GeomType.Point && coords?.Count != 0)
                     {
-                        coords.Points.Add(coords.Points[0]);
+                        coords?.Add(coords[0]);
                     }
                     length--;
                     continue;
@@ -59,9 +68,9 @@ namespace Mapsui.VectorTiles.Mapbox
                 x = x + ldx;
                 y = y + ldy;
 
-                // use scale? var  coord = new Coordinate(x / scale, y / scale);
-                var  coord = new Point(x, y);
-                coords.Points.Add(coord);
+                // Calc coordinates in EPSG:3857 format
+                var  coord = new Point(offsetX + x * factor, offsetY - y * factor);
+                coords?.Add(coord);
             }
             return coordsList;
         }

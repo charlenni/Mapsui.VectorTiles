@@ -42,21 +42,6 @@
     <Reference Include="ConcurrentCollections, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\ConcurrentHashSet.1.0.2\lib\netstandard1.0\ConcurrentCollections.dll</HintPath>
     </Reference>
-    <Reference Include="Mapsui, Version=1.3.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Mapsui.1.3.3-atlas.7\lib\net45\Mapsui.dll</HintPath>
-    </Reference>
-    <Reference Include="Mapsui.Geometries, Version=1.3.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Mapsui.1.3.3-atlas.7\lib\net45\Mapsui.Geometries.dll</HintPath>
-    </Reference>
-    <Reference Include="Mapsui.Rendering.Skia, Version=1.3.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Mapsui.1.3.3-atlas.7\lib\net45\Mapsui.Rendering.Skia.dll</HintPath>
-    </Reference>
-    <Reference Include="Mapsui.Rendering.Xaml, Version=1.3.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Mapsui.1.3.3-atlas.7\lib\net45\Mapsui.Rendering.Xaml.dll</HintPath>
-    </Reference>
-    <Reference Include="Mapsui.UI.Wpf, Version=1.3.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Mapsui.1.3.3-atlas.7\lib\net45\Mapsui.UI.Wpf.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -167,6 +152,18 @@
     <ProjectReference Include="..\..\Mapsui.VectorTiles\Mapsui.VectorTiles.csproj">
       <Project>{e80b8182-1eda-413c-8a0b-2b4a22e8d2fb}</Project>
       <Name>Mapsui.VectorTiles</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Entwicklung\Mapsui\Mapsui.Geometries\Mapsui.Geometries.csproj">
+      <Project>{ee55b62d-ffa2-4c24-a4ad-7a47ace55ce5}</Project>
+      <Name>Mapsui.Geometries</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Entwicklung\Mapsui\Mapsui.UI.Wpf\Mapsui.UI.Wpf.csproj">
+      <Project>{ae693902-feda-4034-a7c5-9aa9872f7878}</Project>
+      <Name>Mapsui.UI.Wpf</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Entwicklung\Mapsui\Mapsui\Mapsui.csproj">
+      <Project>{d74c052a-c07e-4b37-a898-134218aca5c9}</Project>
+      <Name>Mapsui</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

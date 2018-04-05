@@ -77,7 +77,8 @@ namespace Mapsui.VectorTiles.Mapbox
             if (imageData == null || imageData.Count == 0)
                 return new List<VectorTileLayer>();
 
-            return VectorTileParser.Parse(new GZipStream(new MemoryStream(imageData.First().tile_data), CompressionMode.Decompress));
+            // TODO: This is the only line we need, if BruTile handles vector tiles correct
+            return VectorTileParser.Parse(tileInfo, new GZipStream(new MemoryStream(imageData.First().tile_data), CompressionMode.Decompress));
         }
     }
 }

@@ -71,124 +71,13 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
 
             foreach (var layer in layers)
             {
-                foreach (var vtf in layer.VectorTileFeatures)
+                foreach (var feature in layer.VectorTileFeatures)
                 {
-                    var feature = new Providers.Feature();
-                    var styles = styler.GetStyle(layer, new EvaluationContext(zoomFactor, vtf));
+                    var styles = styler.GetStyle(layer, new EvaluationContext(zoomFactor, feature));
 
                     // If there isn't a style, feature shouldn't be rendered
                     if (styles == null || styles.Count == 0)
                         continue;
-
-                    switch (vtf.GeometryType)
-                    {
-                        case GeometryType.Point:
-                            // Convert all Points from Mapbox to Mapsui format
-                            if (vtf.Geometry.Count == 1)
-                            {
-                                // Single point
-                                var point = vtf.Geometry[0].Points[0];
-                                point.X = (float)(tileInfo.Extent.MinX + point.X * factor);
-                                point.Y = (float)(tileInfo.Extent.MaxY - point.Y * factor);
-                                feature.Geometry = point;
-                            }
-                            else
-                            {
-                                // Multi point
-                                var points = new MultiPoint();
-                                foreach (var geom in vtf.Geometry)
-                                {
-                                    foreach (var point in geom.Points)
-                                    {
-                                        point.X = (float) (tileInfo.Extent.MinX + point.X * factor);
-                                        point.Y = (float) (tileInfo.Extent.MaxY - point.Y * factor);
-                                        points.Points.Add(point);
-                                    }
-                                }
-                                feature.Geometry = points;
-                            }
-                            break;
-                        case GeometryType.LineString:
-                            // Convert all LineStrings from Mapbox to Mapsui format
-                            if (vtf.Geometry.Count == 1)
-                            {
-                                // Single line
-                                var line = new LineString();
-                                foreach (var point in vtf.Geometry[0].Points)
-                                {
-                                    point.X = (float) (tileInfo.Extent.MinX + point.X * factor);
-                                    point.Y = (float) (tileInfo.Extent.MaxY - point.Y * factor);
-                                    line.Vertices.Add(point);
-                                }
-                                feature.Geometry = line;
-                            }
-                            else
-                            {
-                                // Multi line
-                                var lines = new MultiLineString();
-                                foreach (var geom in vtf.Geometry)
-                                {
-                                    var line = new LineString();
-                                    foreach (var point in geom.Points)
-                                    {
-                                        point.X = (float)(tileInfo.Extent.MinX + point.X * factor);
-                                        point.Y = (float)(tileInfo.Extent.MaxY - point.Y * factor);
-                                        line.Vertices.Add(point);
-                                    }
-                                    lines.LineStrings.Add(line);
-                                }
-                                feature.Geometry = lines;
-                            }
-                            break;
-                        case GeometryType.Polygon:
-                            // Convert all Polygons from Mapbox to Mapsui format
-                            MultiPolygon polygons = new MultiPolygon();
-                            Polygon polygon = null;
-                            var i = 0;
-                            do
-                            {
-                                var ring = new LinearRing();
-
-                                // Check, if first and last are the same points
-                                if (!vtf.Geometry[0].Points[0].Equals(vtf.Geometry[0].Points[vtf.Geometry[0].Points.Count - 1]))
-                                    vtf.Geometry[0].Points.Add(vtf.Geometry[0].Points[0]);
-                                
-                                // Convert all points of this ring
-                                foreach (var point in vtf.Geometry[i].Points)
-                                {
-                                    ring.Vertices.Add(new Point(
-                                        (float)(tileInfo.Extent.MinX + point.X * factor),
-                                        (float)(tileInfo.Extent.MaxY - point.Y * factor)));
-                                }
-
-                                if (ring.IsCCW() && polygon != null)
-                                {
-                                    polygon.InteriorRings.Add(ring);
-                                }
-                                else
-                                {
-                                    if (polygon != null)
-                                    {
-                                        polygons.Polygons.Add(polygon);
-                                    }
-                                    polygon = new Polygon(ring);
-                                }
-
-                                i++;
-                            } while (i < vtf.Geometry.Count);
-                            // Save last one
-                            polygons.Polygons.Add(polygon);
-                            // Now save correct geometry
-                            if (polygons.Polygons.Count > 1)
-                            {
-                                feature.Geometry = polygons;
-                            }
-                            else
-                            {
-                                feature.Geometry = polygons.Polygons.First();
-                            }
-                            break;
-                    }
 
                     // Set style for this feature
                     feature.Styles.Clear();
