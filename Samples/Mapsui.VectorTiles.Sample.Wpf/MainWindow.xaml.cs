@@ -77,6 +77,8 @@ namespace Mapsui.VectorTiles.Sample.Wpf
                 Opacity = 1,
                 Style = null,
             });
+
+            MapControl.Map.Viewport.Rotation = 0;
         }
     }
 }
