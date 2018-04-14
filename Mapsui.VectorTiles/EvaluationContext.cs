@@ -2,15 +2,15 @@
 {
     public class EvaluationContext
     {
-        public float? Zoom { get; }
+        public float? Resolution { get; }
         public VectorTileFeature Feature { get; }
 
         public EvaluationContext(VectorTileFeature feature) : this(null, feature)
         { }
 
-        public EvaluationContext(float? zoom, VectorTileFeature feature = null)
+        public EvaluationContext(float? resolution, VectorTileFeature feature = null)
         {
-            Zoom = zoom;
+            Resolution = resolution;
             Feature = feature;
         }
     }

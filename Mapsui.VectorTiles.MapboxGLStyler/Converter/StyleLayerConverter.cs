@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Mapsui.Styles;
+using Mapsui.VectorTiles.MapboxGLStyler.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
@@ -13,23 +14,24 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
         /// Convert given context with Mapbox GL styling layer to a Mapsui Style list
         /// </summary>
         /// <param name="context">Context to use while evaluating style</param>
-        /// <param name="layer">Mapbox GL style layer</param>
+        /// <param name="styleLayer">Mapbox GL style layer</param>
         /// <param name="spriteAtlas">Dictionary with availible sprites</param>
         /// <returns>A list of Mapsui Styles</returns>
-        public IList<IStyle> Convert(EvaluationContext context, Layer layer, Dictionary<string, Atlas> spriteAtlas)
+        public IList<IStyle> Convert(EvaluationContext context, StyleLayer styleLayer, Dictionary<string, Styles.Sprite> spriteAtlas)
         {
-            switch (layer.Type)
+            switch (styleLayer.Type)
             {
                 case "fill":
-                    return ConvertFillLayer(context, layer, spriteAtlas);
+                    return ConvertFillLayer(context, styleLayer, spriteAtlas);
                 case "line":
-                    return ConvertLineLayer(context, layer, spriteAtlas);
+                    return ConvertLineLayer(context, styleLayer, spriteAtlas);
                 case "symbol":
-                    return ConvertSymbolLayer(context, layer, spriteAtlas);
+                    return ConvertSymbolLayer(context, styleLayer, spriteAtlas);
                 case "circle":
                     return new List<IStyle>();
                 case "raster":
-                    return new List<IStyle>();
+                    // Shouldn't get here, because raster are directly handled by ConvertRasterLayer
+                    break;
                 case "background":
                     return new List<IStyle>();
             }
@@ -37,17 +39,64 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             return new List<IStyle>();
         }
 
-        public IList<IStyle> ConvertFillLayer(EvaluationContext context, Layer layer, Dictionary<string, Atlas> spriteAtlas)
+        public IStyle ConvertRasterLayer(float contextResolution, StyleLayer styleLayer)
+        {
+            // visibility
+            //   Optional enum. One of visible, none. Defaults to visible.
+            //   The display of this layer. none hides this layer.
+            if (styleLayer.Layout?.Visibility != null && styleLayer.Layout.Visibility.Equals("none"))
+                return null;
+
+            var paint = styleLayer.Paint;
+
+            var styleRaster = new RasterStyle();
+
+            // raster-opacity
+            //   Optional number. Defaults to 1.
+            //   The opacity at which the image will be drawn.
+            if (paint?.RasterOpacity != null)
+            {
+                styleRaster.Opacity = paint.RasterOpacity.Evaluate(contextResolution);
+            }
+
+            // raster-hue-rotate
+            //   Optional number. Units in degrees. Defaults to 0.
+            //   Rotates hues around the color wheel.
+
+            // raster-brightness-min
+            //   Optional number.Defaults to 0.
+            //   Increase or reduce the brightness of the image. The value is the minimum brightness.
+
+            // raster-brightness-max
+            //   Optional number. Defaults to 1.
+            //   Increase or reduce the brightness of the image. The value is the maximum brightness.
+
+            // raster-saturation
+            //   Optional number.Defaults to 0.
+            //   Increase or reduce the saturation of the image.
+
+            // raster-contrast
+            //   Optional number. Defaults to 0.
+            //   Increase or reduce the contrast of the image.
+
+            // raster-fade-duration
+            //   Optional number.Units in milliseconds.Defaults to 300.
+            //   Fade duration when a new tile is added.
+
+            return styleRaster;
+        }
+
+        public IList<IStyle> ConvertFillLayer(EvaluationContext context, StyleLayer styleLayer, Dictionary<string, Styles.Sprite> spriteAtlas)
         {
             List<IStyle> result = new List<IStyle>();
 
             // visibility
             //   Optional enum. One of visible, none. Defaults to visible.
             //   The display of this layer. none hides this layer.
-            if (layer.Layout?.Visibility != null && layer.Layout.Visibility.Equals("none"))
+            if (styleLayer.Layout?.Visibility != null && styleLayer.Layout.Visibility.Equals("none"))
                 return result;
 
-            var paint = layer.Paint;
+            var paint = styleLayer.Paint;
 
             var styleVector = new VectorStyle();
             
@@ -64,8 +113,10 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             //   opacity of the 1px stroke, if it is used.
             if (paint?.FillColor != null)
             {
-                styleVector.Fill = new Styles.Brush(ConvertStoppedColor(paint.FillColor, context.Zoom));
-                styleVector.Fill.FillStyle = FillStyle.Solid;
+                styleVector.Fill = new Styles.Brush(paint.FillColor.Evaluate(context.Resolution))
+                {
+                    FillStyle = FillStyle.Solid
+                };
 
                 if (paint?.FillOutlineColor == null)
                     line.Color = styleVector.Fill.Color;
@@ -76,7 +127,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             //   The outline color of the fill. Matches the value of fill-color if unspecified.
             if (paint?.FillOutlineColor != null) // && paint.FillOutlineColor is string)
             {
-                line.Color = ConvertStoppedColor(paint.FillOutlineColor, context.Zoom);
+                line.Color = paint.FillOutlineColor.Evaluate(context.Resolution);
             }
 
             // fill-opacity
@@ -113,23 +164,25 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             else if (context.Feature.GeometryType == GeometryType.LineString)
                 styleVector.Line = line;
 
+            styleVector.Enabled = true;
+
             result.Add(styleVector);
 
             return result;
         }
 
-        public IList<IStyle> ConvertLineLayer(EvaluationContext context, Layer layer, Dictionary<string, Atlas> spriteAtlas)
+        public IList<IStyle> ConvertLineLayer(EvaluationContext context, StyleLayer styleLayer, Dictionary<string, Styles.Sprite> spriteAtlas)
         {
             List<IStyle> result = new List<IStyle>();
 
             // visibility
             //   Optional enum. One of visible, none. Defaults to visible.
             //   The display of this layer. none hides this layer.
-            if (layer.Layout?.Visibility != null && layer.Layout.Visibility.Equals("none"))
+            if (styleLayer.Layout?.Visibility != null && styleLayer.Layout.Visibility.Equals("none"))
                 return result;
 
-            var paint = layer.Paint;
-            var layout = layer.Layout;
+            var paint = styleLayer.Paint;
+            var layout = styleLayer.Layout;
 
             var styleVector = new VectorStyle();
 
@@ -188,7 +241,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             //   The color with which the line will be drawn.
             if (paint?.LineColor != null)
             {
-                line.Color = ConvertStoppedColor(paint.LineColor, context.Zoom);
+                line.Color = paint.LineColor.Evaluate(context.Resolution);
             }
 
             // line-width
@@ -196,7 +249,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             //   Stroke thickness.
             if (paint?.LineWidth != null)
             {
-                line.Width = ConvertStoppedDouble(paint.LineWidth, context.Zoom);
+                line.Width = paint.LineWidth.Evaluate(context.Resolution);
             }
 
             // line-opacity
@@ -204,7 +257,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             //   The opacity at which the line will be drawn.
             if (paint?.LineOpacity != null)
             {
-                line.Color = new Color(line.Color.R, line.Color.G, line.Color.B, (int)Math.Round(ConvertStoppedDouble(paint.LineOpacity, context.Zoom) * 255.0));
+                line.Color = new Color(line.Color.R, line.Color.G, line.Color.B, (int)Math.Round(paint.LineOpacity.Evaluate(context.Resolution) * 255.0));
             }
 
             // line-dasharray
@@ -270,23 +323,25 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             else if (context.Feature.GeometryType == GeometryType.LineString)
                 styleVector.Line = line;
 
+            styleVector.Enabled = true;
+
             result.Add(styleVector);
 
             return result;
         }
 
-        public IList<IStyle> ConvertSymbolLayer(EvaluationContext context, Layer layer, Dictionary<string, Atlas> spriteAtlas)
+        public IList<IStyle> ConvertSymbolLayer(EvaluationContext context, StyleLayer styleLayer, Dictionary<string, Styles.Sprite> spriteAtlas)
         {
             List<IStyle> result = new List<IStyle>();
 
             // visibility
             //   Optional enum. One of visible, none. Defaults to visible.
             //   The display of this layer. none hides this layer.
-            if (layer.Layout?.Visibility != null && layer.Layout.Visibility.Equals("none"))
+            if (styleLayer.Layout?.Visibility != null && styleLayer.Layout.Visibility.Equals("none"))
                 return result;
 
-            var paint = layer.Paint;
-            var layout = layer.Layout;
+            var paint = styleLayer.Paint;
+            var layout = styleLayer.Layout;
 
             var styleLabel = new LabelStyle
             {
@@ -350,7 +405,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 //   The color with which the text will be drawn.
                 if (paint?.TextColor != null)
                 {
-                    styleLabel.ForeColor = ConvertStoppedColor(paint.TextColor, context.Zoom);
+                    styleLabel.ForeColor = paint.TextColor.Evaluate(context.Resolution);
                 }
 
                 // text-opacity
@@ -365,7 +420,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 //   The color of the text's halo, which helps it stand out from backgrounds.
                 if (paint?.TextHaloColor != null)
                 {
-                    styleLabel.Halo.Color = ConvertStoppedColor(paint.TextHaloColor, context.Zoom);
+                    styleLabel.Halo.Color = paint.TextHaloColor.Evaluate(context.Resolution);
                 }
 
                 //text-halo-width
@@ -373,7 +428,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 //   Distance of halo to the font outline. Max text halo width is 1/4 of the font-size.
                 if (paint?.TextHaloWidth != null)
                 {
-                    styleLabel.Halo.Width = ConvertStoppedDouble(paint.TextHaloWidth, context.Zoom);
+                    styleLabel.Halo.Width = paint.TextHaloWidth.Evaluate(context.Resolution);
                 }
 
                 // text-font
@@ -402,7 +457,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 //   Font size.
                 if (layout?.TextSize != null)
                 {
-                    styleLabel.Font.Size = ConvertStoppedDouble(layout.TextSize, context.Zoom);
+                    styleLabel.Font.Size = layout.TextSize.Evaluate(context.Resolution);
                 }
 
                 // text-rotation-alignment
@@ -492,11 +547,11 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             //   A string with { tokens } replaced, referencing the data property to pull from. Interval.
             if (layout?.IconImage != null)
             {
-                var name = ReplaceFields(ConvertStoppedString(layout.IconImage, context.Zoom), context.Feature.Tags);
+                var name = ReplaceFields(layout.IconImage.Evaluate(context.Resolution), context.Feature.Tags);
 
-                if (!string.IsNullOrEmpty(name) && spriteAtlas.ContainsKey(name) && spriteAtlas[name].BitmapId >= 0)
+                if (!string.IsNullOrEmpty(name) && spriteAtlas.ContainsKey(name) && spriteAtlas[name].Atlas >= 0)
                 {
-                    styleSymbol.BitmapId = spriteAtlas[name].BitmapId;
+                    styleSymbol.BitmapId = spriteAtlas[name].Atlas;
                 }
 
                 // icon-allow-overlap
@@ -577,356 +632,25 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
 
             if (context.Feature.GeometryType == GeometryType.Point)
             {
+                styleLabel.Enabled = true;
+
                 result.Add(styleLabel);
+
                 if (styleSymbol.BitmapId >= 0)
+                {
+                    styleSymbol.Enabled = true;
+
                     result.Add(styleSymbol);
+                }
             }
             else
+            {
+                styleVector.Enabled = true;
+
                 result.Add(styleVector);
+            }
 
             return result;
-        }
-
-        /// <summary>
-        /// Calculate the correct string for a stopped function
-        /// No StoppsType needed, because strings couldn't interpolated :)
-        /// </summary>
-        /// <param name="si">Parameters as StoppedString containing string</param>
-        /// <param name="contextZoom">Zoom factor for calculation </param>
-        /// <returns>Value for this stopp respecting zoom factor and type</returns>
-        public string ConvertStoppedString(StoppedString si, float? contextZoom)
-        {
-            if (si == null)
-                return string.Empty;
-
-            // Are there no stopps, but a single value?
-            if (si.SingleVal != string.Empty)
-                return si.SingleVal;
-
-            // Are there no stopps in array
-            if (si.Stops.Count == 0)
-                return string.Empty;
-
-            float zoom = contextZoom ?? 0;
-
-            var lastZoom = float.Parse(si.Stops[0][0].ToString());
-            var lastValue = si.Stops[0][1].ToString();
-
-            if (lastZoom > zoom)
-                return lastValue;
-
-            for (int i = 1; i < si.Stops.Count; i++)
-            {
-                var nextZoom = float.Parse(si.Stops[i][0].ToString());
-                var nextValue = si.Stops[i][1].ToString();
-
-                if (lastZoom <= zoom && zoom <= nextZoom)
-                {
-                    return lastValue;
-                }
-
-                lastZoom = nextZoom;
-                lastValue = nextValue;
-            }
-
-            return lastValue;
-        }
-
-        /// <summary>
-        /// Calculate the correct color for a stopped function
-        /// No Bezier type up to now
-        /// </summary>
-        /// <param name="sc">Parameters as StoppedString containing colors</param>
-        /// <param name="contextZoom">Zoom factor for calculation </param>
-        /// <param name="stoppsType">Type of calculation (interpolate, exponential, categorical)</param>
-        /// <returns>Value for this stopp respecting zoom factor and type</returns>
-        public Color ConvertStoppedColor(StoppedString sc, float? contextZoom, StoppsType stoppsType = StoppsType.Exponential)
-        {
-            if (sc == null)
-                return Color.Black;
-
-            // Are there no stopps, but a single value?
-            if (sc.SingleVal != string.Empty)
-                return ConvertColor(sc.SingleVal);
-
-            // Are there no stopps in array
-            if (sc.Stops.Count == 0)
-                return Color.Black;
-
-            float zoom = contextZoom ?? 0;
-
-            var lastZoom = float.Parse(sc.Stops[0][0].ToString());
-            var lastValue = sc.Stops[0][1].ToString();
-
-            if (lastZoom > zoom)
-                return ConvertColor(lastValue);
-
-            for (int i = 1; i < sc.Stops.Count; i++)
-            {
-                var nextZoom = float.Parse(sc.Stops[i][0].ToString());
-                var nextValue = sc.Stops[i][1].ToString();
-
-                if (lastZoom <= zoom && zoom <= nextZoom)
-                {
-                    switch (stoppsType)
-                    {
-                        case StoppsType.Interval:
-                            return ConvertColor(lastValue);
-                        case StoppsType.Exponential:
-                            var progress = zoom - lastZoom;
-                            var difference = nextZoom - lastZoom;
-                            if (difference < float.Epsilon)
-                                return Color.Black;
-                            float factor;
-                            if (sc.Base - 1 < float.Epsilon)
-                                factor = progress / difference;
-                            else
-                                factor =  (float)((Math.Pow(sc.Base, progress) - 1) / (Math.Pow(sc.Base, difference) - 1));
-                            var nextColor = ConvertColor(nextValue);
-                            var lastColor = ConvertColor(lastValue);
-                            var r = (int)Math.Round((nextColor.R - lastColor.R) * factor);
-                            var g = (int)Math.Round((nextColor.G - lastColor.G) * factor);
-                            var b = (int)Math.Round((nextColor.B - lastColor.B) * factor);
-                            var a = (int)Math.Round((nextColor.A - lastColor.A) * factor);
-                            return new Color(r, g, b, a);
-                        case StoppsType.Categorical:
-                            // ==
-                            if (nextZoom - zoom < float.Epsilon)
-                                return ConvertColor(nextValue);
-                            break;
-                    }
-                }
-
-                lastZoom = nextZoom;
-                lastValue = nextValue;
-            }
-
-            return ConvertColor(lastValue);
-        }
-
-        /// <summary>
-        /// Calculate the correct value for a stopped function
-        /// No Bezier type up to now
-        /// </summary>
-        /// <param name="sd">Parameters as StoppedDouble</param>
-        /// <param name="contextZoom">Zoom factor for calculation </param>
-        /// <param name="stoppsType">Type of calculation (interpolate, exponential, categorical)</param>
-        /// <returns>Value for this stopp respecting zoom factor and type</returns>
-        public float ConvertStoppedDouble(StoppedDouble sd, float? contextZoom, StoppsType stoppsType = StoppsType.Exponential)
-        {
-            if (sd == null)
-                return 0;
-
-            // Are there no stopps, but a single value?
-            // !=
-            if (sd.SingleVal - float.MinValue > float.Epsilon)
-                return sd.SingleVal;
-
-            // Are there no stopps in array
-            if (sd.Stops.Count == 0)
-                return 0;
-
-            float zoom = contextZoom ?? 0;
-
-            var lastZoom = float.Parse(sd.Stops[0][0].ToString());
-            var lastValue = float.Parse(sd.Stops[0][1].ToString());
-
-            if (lastZoom > zoom)
-                return lastValue;
-
-            for (int i = 1; i < sd.Stops.Count; i++)
-            {
-                var nextZoom = float.Parse(sd.Stops[i][0].ToString());
-                var nextValue = float.Parse(sd.Stops[i][1].ToString());
-
-                if (lastZoom <= zoom && zoom <= nextZoom)
-                {
-                    switch (stoppsType)
-                    {
-                        case StoppsType.Interval:
-                            return lastValue;
-                        case StoppsType.Exponential:
-                            var progress = zoom - lastZoom;
-                            var difference = nextZoom - lastZoom;
-                            if (difference < float.Epsilon)
-                                return 0;
-                            if (sd.Base - 1.0f < float.Epsilon)
-                                return (nextValue - lastValue) * progress / difference;
-                            else
-                                return (float)((nextValue - lastValue) * (Math.Pow(sd.Base, progress) - 1) / (Math.Pow(sd.Base, difference) - 1));
-                        case StoppsType.Categorical:
-                            if (nextZoom - zoom < float.Epsilon)
-                                return nextValue;
-                            break;
-                    }
-                }
-
-                lastZoom = nextZoom;
-                lastValue = nextValue;
-            }
-
-            return lastValue;
-        }
-
-        private readonly Dictionary<string, Color> colorCache = new Dictionary<string, Color>();
-
-        /// <summary>
-        /// Converts a string in Mapbox GL format to a Mapsui Color
-        /// </summary>
-        /// <param name="from">String with HTML color representation or function like rgb() or hsl()</param>
-        /// <returns>Converted Mapsui Color</returns>
-        public Color ConvertColor(string from)
-        {
-            if (colorCache.TryGetValue(from, out var result))
-                return result;
-
-            from = from.Trim();
-
-            // Check, if it is a known color
-            if (knownColors.ContainsKey(from))
-                from = knownColors[from];
-
-            if (from.StartsWith("#"))
-            {
-                if (from.Length == 7)
-                {
-                    var color = int.Parse(from.Substring(1), NumberStyles.AllowHexSpecifier,
-                        CultureInfo.InvariantCulture);
-                    result = new Color(color >> 16 & 0xFF, color >> 8 & 0xFF, color & 0xFF);
-                }
-                else if (from.Length == 4)
-                {
-                    var color = int.Parse(from.Substring(1), NumberStyles.AllowHexSpecifier,
-                        CultureInfo.InvariantCulture);
-                    var r = (color >> 8 & 0xF) * 16 + (color >> 8 & 0xF);
-                    var g = (color >> 4 & 0xF) * 16 + (color >> 4 & 0xF);
-                    var b = (color & 0xF) * 16 + (color & 0xF);
-                    result = new Color(r, g, b);
-                }
-            }
-            else if (from.StartsWith("rgb("))
-            {
-                var split = from.Substring(4).TrimEnd(')').Split(',');
-
-                if (split.Length != 3)
-                    throw new ArgumentException($"color {from} isn't a valid color");
-
-                var r = int.Parse(split[0].Trim(), CultureInfo.InvariantCulture);
-                var g = int.Parse(split[1].Trim(), CultureInfo.InvariantCulture);
-                var b = int.Parse(split[2].Trim(), CultureInfo.InvariantCulture);
-
-                result = new Color(r, g, b);
-            }
-            else if (from.StartsWith("rgba("))
-            {
-                var split = from.Substring(5).TrimEnd(')').Split(',');
-
-                if (split.Length != 4)
-                    throw new ArgumentException($"color {from} isn't a valid color");
-
-                var r = int.Parse(split[0].Trim(), CultureInfo.InvariantCulture);
-                var g = int.Parse(split[1].Trim(), CultureInfo.InvariantCulture);
-                var b = int.Parse(split[2].Trim(), CultureInfo.InvariantCulture);
-                var a = float.Parse(split[3].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture);
-
-                result = new Color(r, g, b, (int)(a * 255));
-            }
-            else if (from.StartsWith("hsl("))
-            {
-                var split = from.Substring(4).TrimEnd(')').Split(',');
-
-                if (split.Length != 3)
-                    throw new ArgumentException($"color {from} isn't a valid color");
-
-                var h = int.Parse(split[0].Trim(), CultureInfo.InvariantCulture);
-                var s = int.Parse(split[1].Trim().Replace("%", ""), CultureInfo.InvariantCulture);
-                var l = int.Parse(split[2].Trim().Replace("%", ""), CultureInfo.InvariantCulture);
-
-                result = ColorFromHsl(h / 360.0f, s / 100.0f, l / 100.0f);
-            }
-            else if (from.StartsWith("hsla("))
-            {
-                var split = from.Substring(5).TrimEnd(')').Split(',');
-
-                if (split.Length != 4)
-                    throw new ArgumentException($"color {from} isn't a valid color");
-
-                var h = float.Parse(split[0].Trim(), CultureInfo.InvariantCulture);
-                var s = float.Parse(split[1].Trim().Replace("%", ""), CultureInfo.InvariantCulture);
-                var l = float.Parse(split[2].Trim().Replace("%", ""), CultureInfo.InvariantCulture);
-                var a = float.Parse(split[3].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture);
-
-                result = ColorFromHsl(h / 360.0f, s / 100.0f, l / 100.0f, a);
-            }
-
-            // Save for potential later use
-            colorCache[from] = result;
-
-            return result;
-        }
-
-        /// <summary>
-        /// Found at http://james-ramsden.com/convert-from-hsl-to-rgb-colour-codes-in-c/
-        /// </summary>
-        /// <param name="h"></param>
-        /// <param name="s"></param>
-        /// <param name="l"></param>
-        /// <param name="a"></param>
-        /// <returns></returns>
-        public static Color ColorFromHsl(float h, float s, float l, float a = 1)
-        {
-            double r = 0, g = 0, b = 0;
-            // != 0
-            if (l > float.Epsilon)
-            {
-                // == 0
-                if (s < float.Epsilon)
-                    r = g = b = l;
-                else
-                {
-                    float temp2;
-
-                    if (l < 0.5)
-                        temp2 = l * (1.0f + s);
-                    else
-                        temp2 = l + s - (l * s);
-
-                    float temp1 = 2.0f * l - temp2;
-
-                    r = GetColorComponent(temp1, temp2, h + 1.0f / 3.0f);
-                    g = GetColorComponent(temp1, temp2, h);
-                    b = GetColorComponent(temp1, temp2, h - 1.0f / 3.0f);
-                }
-            }
-            return Color.FromArgb((int)Math.Round(a * 255.0f), 
-                (int)Math.Round(r * 255.0f), 
-                (int)Math.Round(g * 255.0f), 
-                (int)Math.Round(b * 255.0f));
-
-        }
-
-        /// <summary>
-        /// Helper function for ColorFromHsl function
-        /// </summary>
-        /// <param name="temp1"></param>
-        /// <param name="temp2"></param>
-        /// <param name="temp3"></param>
-        /// <returns></returns>
-        private static double GetColorComponent(float temp1, float temp2, float temp3)
-        {
-            if (temp3 < 0.0f)
-                temp3 += 1.0f;
-            else if (temp3 > 1.0f)
-                temp3 -= 1.0f;
-
-            if (temp3 < 1.0f / 6.0f)
-                return temp1 + (temp2 - temp1) * 6.0f * temp3;
-            else if (temp3 < 0.5f)
-                return temp2;
-            else if (temp3 < 2.0f / 3.0f)
-                return temp1 + ((temp2 - temp1) * ((2.0f / 3.0f) - temp3) * 6.0f);
-            else
-                return temp1;
         }
 
         /// <summary>

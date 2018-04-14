@@ -1,26 +1,23 @@
-﻿using Newtonsoft.Json;
+﻿using Mapsui.Styles;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 
 namespace Mapsui.VectorTiles.MapboxGLStyler
 {
-    public class StoppedDoubleConverter : JsonConverter
+    public class ColorConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(StoppedDouble) || objectType == typeof(int);
-            //return typeof(StoppedDouble).IsAssignableFrom(objectType) || typeof(int).IsAssignableFrom(objectType);
+            return objectType == typeof(string);
         }
 
         public override object ReadJson(JsonReader reader,
             Type objectType, object existingValue, JsonSerializer serializer)
         {
             JToken token = JToken.Load(reader);
-            if (token.Type == JTokenType.Object)
-            {
-                return token.ToObject<StoppedDouble>();
-            }
-            return new StoppedDouble() { SingleVal = token.Value<float>() };
+
+            return Color.FromString(token.Value<string>());
         }
 
         public override bool CanWrite => false;

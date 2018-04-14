@@ -70,12 +70,9 @@
     <Compile Include="IVectorTileProvider.cs" />
     <Compile Include="KnownColors.cs" />
     <Compile Include="SimpleColor.cs" />
-    <Compile Include="IVectorTileStyler.cs" />
     <Compile Include="TagsCollection.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="VectorTileFeature.cs" />
-    <Compile Include="IVectorTileSource.cs" />
-    <Compile Include="VectorTileLayer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="BruTile, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">

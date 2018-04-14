@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 
-namespace Mapsui.VectorTiles.Mapbox
+namespace Mapsui.VectorTiles.MapboxGLFormat
 {
     using System.Collections.Generic;
     using System.Linq;

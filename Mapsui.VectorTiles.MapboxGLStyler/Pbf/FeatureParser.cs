@@ -3,7 +3,7 @@ using BruTile;
 using Mapsui.Geometries;
 using System.Collections.Generic;
 
-namespace Mapsui.VectorTiles.Mapbox
+namespace Mapsui.VectorTiles.MapboxGLFormat
 {
     public static class FeatureParser
     {

@@ -7,11 +7,11 @@ using System.Collections.Generic;
 
 namespace Mapsui.VectorTiles.MapboxGLStyler
 {
-    public class StoppedStringConverter : JsonConverter
+    public class StoppedFloatConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(StoppedString) || objectType == typeof(string);
+            return objectType == typeof(StoppedFloat) || objectType == typeof(int);
             //return typeof(StoppedDouble).IsAssignableFrom(objectType) || typeof(int).IsAssignableFrom(objectType);
         }
 
@@ -21,21 +21,24 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
             JToken token = JToken.Load(reader);
             if (token.Type == JTokenType.Object)
             {
-                var stoppedString = new StoppedString { Stops = new List<KeyValuePair<float, string>>() };
+                var stoppedFloat = new StoppedFloat { Stops = new List<KeyValuePair<float, float>>() };
 
-                stoppedString.Base = token.SelectToken("base").ToObject<float>();
+                if (token.SelectToken("base") != null)
+                    stoppedFloat.Base = token.SelectToken("base").ToObject<float>();
+                else
+                    stoppedFloat.Base = 1f;
 
                 foreach (var stop in token.SelectToken("stops"))
                 {
                     var resolution = (float)stop.First.ToObject<float>().ToResolution();
-                    var text = stop.Last.ToObject<string>();
-                    stoppedString.Stops.Add(new KeyValuePair<float, string>(resolution, text));
+                    var value = stop.Last.ToObject<float>();
+                    stoppedFloat.Stops.Add(new KeyValuePair<float, float>(resolution, value));
                 }
 
-                return stoppedString;
+                return stoppedFloat;
             }
 
-            return new StoppedString() { SingleVal = token.Value<string>() };
+            return new StoppedFloat() { SingleVal = token.Value<float>() };
         }
 
         public override bool CanWrite => false;

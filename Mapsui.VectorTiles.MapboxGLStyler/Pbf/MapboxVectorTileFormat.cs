@@ -1,4 +1,4 @@
-﻿namespace Mapsui.VectorTiles.Mapbox
+﻿namespace Mapsui.VectorTiles.MapboxGLFormat
 {
     /// <summary>
     /// Objects for Mapbox Pbf format

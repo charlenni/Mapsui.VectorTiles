@@ -82,14 +82,7 @@
     <Compile Include="Map.cs" />
     <Compile Include="MapboxVectorTileSource.cs" />
     <Compile Include="Metadata.cs" />
-    <Compile Include="TagsParser.cs" />
-    <Compile Include="Extensions\IEnumerableExtensions.cs" />
-    <Compile Include="FeatureParser.cs" />
-    <Compile Include="GeometryParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VectorTileParser.cs" />
-    <Compile Include="MapboxVectorTileFormat.cs" />
-    <Compile Include="ZigZag.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

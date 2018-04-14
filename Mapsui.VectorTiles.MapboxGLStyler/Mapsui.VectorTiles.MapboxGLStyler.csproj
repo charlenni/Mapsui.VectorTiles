@@ -35,10 +35,6 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
-    <ProjectReference Include="..\Mapsui.VectorTiles.Mapbox\Mapsui.VectorTiles.Mapbox.csproj">
-      <Project>{E1EA7DC2-6EA3-403A-A2DB-7143C9E5B704}</Project>
-      <Name>Mapsui.VectorTiles.Mapbox</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Mapsui.VectorTiles\Mapsui.VectorTiles.csproj">
       <Project>{e80b8182-1eda-413c-8a0b-2b4a22e8d2fb}</Project>
       <Name>Mapsui.VectorTiles</Name>
@@ -53,18 +49,42 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converter\ColorConverter.cs" />
+    <Compile Include="Converter\StoppedColorConverter.cs" />
     <Compile Include="Converter\StyleLayerConverter.cs" />
     <Compile Include="Converter\StoppedStringConverter.cs" />
     <Compile Include="Converter\FilterConverter.cs" />
-    <Compile Include="MapboxGLJson.cs" />
+    <Compile Include="Extensions\IEnumerableExtensions.cs" />
+    <Compile Include="Extensions\ZoomExtensions.cs" />
+    <Compile Include="Json\Layout.cs" />
+    <Compile Include="Json\StoppedFloat.cs" />
+    <Compile Include="Json\StoppedString.cs" />
+    <Compile Include="Json\Sprite.cs" />
+    <Compile Include="Json\Source.cs" />
+    <Compile Include="Json\StopsType.cs" />
+    <Compile Include="Json\StyleLayer.cs" />
+    <Compile Include="Json\Paint.cs" />
+    <Compile Include="Json\StoppedColor.cs" />
+    <Compile Include="Json\MapboxGL.cs" />
     <Compile Include="MapboxGLStyler.cs" />
-    <Compile Include="MapboxGLVectorTileProvider.cs" />
+    <Compile Include="MapboxGLThemeStyle.cs" />
+    <Compile Include="Pbf\FeatureParser.cs" />
+    <Compile Include="Pbf\GeometryParser.cs" />
+    <Compile Include="Pbf\MapboxVectorTileFormat.cs" />
+    <Compile Include="Pbf\TagsParser.cs" />
+    <Compile Include="Pbf\VectorTileParser.cs" />
+    <Compile Include="Pbf\ZigZag.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Converter\StoppedDoubleConverter.cs" />
+    <Compile Include="Converter\StoppedFloatConverter.cs" />
+    <Compile Include="VectorTileLayer.cs" />
+    <Compile Include="VectorTileProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="BruTile, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\BruTile.1.0.0\lib\portable-net45+win+WindowsPhoneApp81+Xamarin.iOS10+MonoAndroid10+MonoTouch10\BruTile.dll</HintPath>
+    </Reference>
+    <Reference Include="BruTile.MbTiles, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>C:\Entwicklung\Mapsui\packages\BruTile.MbTiles.1.0.0\lib\portable-net45+win+WindowsPhoneApp81+Xamarin.iOS10+MonoAndroid10+MonoTouch10\BruTile.MbTiles.dll</HintPath>
     </Reference>
     <Reference Include="ConcurrentCollections, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ConcurrentHashSet.1.0.2\lib\netstandard1.0\ConcurrentCollections.dll</HintPath>
@@ -80,6 +100,18 @@
     </Reference>
     <Reference Include="SkiaSharp.Svg, Version=1.59.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\SkiaSharp.Svg.1.59.1\lib\portable-net45+win8+wpa81+wp8\SkiaSharp.Svg.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLite-net, Version=1.4.118.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>C:\Entwicklung\Mapsui\packages\sqlite-net-pcl.1.4.118\lib\portable-net45+wp8+wpa81+win8+MonoAndroid10+MonoTouch10+Xamarin.iOS10\SQLite-net.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.batteries_green, Version=1.0.0.0, Culture=neutral, PublicKeyToken=a84b7dcfb1391f7f, processorArchitecture=MSIL">
+      <HintPath>C:\Entwicklung\Mapsui\packages\SQLitePCLRaw.bundle_green.1.1.5\lib\portable-net45+netcore45+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\SQLitePCLRaw.batteries_green.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.batteries_v2, Version=1.0.0.0, Culture=neutral, PublicKeyToken=8226ea5df37bcae9, processorArchitecture=MSIL">
+      <HintPath>C:\Entwicklung\Mapsui\packages\SQLitePCLRaw.bundle_green.1.1.5\lib\portable-net45+netcore45+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\SQLitePCLRaw.batteries_v2.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1488e028ca7ab535, processorArchitecture=MSIL">
+      <HintPath>C:\Entwicklung\Mapsui\packages\SQLitePCLRaw.core.1.1.5\lib\portable-net45+netcore45+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\SQLitePCLRaw.core.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\netstandard1.1\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>

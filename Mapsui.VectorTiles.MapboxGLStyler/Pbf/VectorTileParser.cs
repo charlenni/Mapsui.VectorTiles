@@ -3,7 +3,7 @@ using ProtoBuf;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Mapsui.VectorTiles.Mapbox
+namespace Mapsui.VectorTiles.MapboxGLFormat
 {
     public static class VectorTileParser
     {
@@ -38,6 +38,7 @@ namespace Mapsui.VectorTiles.Mapbox
                 foreach (var feature in layer.Features)
                 {
                     var vectorTileFeature = FeatureParser.Parse(tileInfo, feature, layer.Keys, layer.Values, extent);
+                    // Add to layer
                     vectorTileLayer.VectorTileFeatures.Add(vectorTileFeature);
                 }
 

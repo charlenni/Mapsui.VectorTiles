@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using Mapsui.Providers;
@@ -18,8 +19,8 @@ namespace Mapsui.VectorTiles.Sample.Wpf
         {
             InitializeComponent();
 
-            //Mapsui.Logging.Logger.LogDelegate =
-            //    (level, s, arg3) => System.Diagnostics.Debug.WriteLine($"Logger: {level} - {s}\nStack:\n{arg3}");
+            Mapsui.Logging.Logger.LogDelegate =
+                (level, s, arg3) => System.Diagnostics.Debug.WriteLine($"Logger: {level} - {s}\nStack:\n{arg3}");
 
             MapControl.RenderMode = UI.Wpf.RenderMode.Skia;
 
@@ -47,16 +48,25 @@ namespace Mapsui.VectorTiles.Sample.Wpf
             var jsonStyleStream = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.Styles.osm_liberty.osm-liberty.json");
             var jsonStyleAtlas = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.Styles.osm_liberty.sprite.osm-liberty.json");
             var jsonStyleAtlasBitmap = assembly.GetManifestResourceStream("Mapsui.VectorTiles.Sample.Wpf.Styles.osm_liberty.sprite.osm-liberty.png");
-            var jsonStyler = new MapboxGLStyler.MapboxGLStyler(jsonStyleStream);
 
-            if (jsonStyler.SpriteUrl != null)
+            try
             {
-                jsonStyler.CreateSprites(jsonStyleAtlas, jsonStyleAtlasBitmap);
+                var jsonStyler = new MapboxGLStyler.MapboxGLStyler(jsonStyleStream, MapControl.Map);
+
+                if (jsonStyler.SpriteUrl != null)
+                {
+                    jsonStyler.CreateSprites(jsonStyleAtlas, jsonStyleAtlasBitmap);
+                }
+
+                if (jsonStyler.Center != null)
+                    MapControl.Map.NavigateTo(jsonStyler.Center);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
             }
 
-            MapControl.Map.BackColor = jsonStyler.Background;
-            if (jsonStyler.Center != null)
-                MapControl.Map.NavigateTo(jsonStyler.Center);
 //            MapControl.Map.NavigateTo(MapControl.Map.Resolutions[(int)jsonStyler.Zoom]);
 
             //var bb = new BoundingBox(Projection.SphericalMercator.FromLonLat(7.3090279, 43.416333),
@@ -67,16 +77,16 @@ namespace Mapsui.VectorTiles.Sample.Wpf
 
             //ZoomHelper.ZoomToBoudingbox(MapControl.Map.Viewport, -180, -90, 180, 90, 1000, 800);
             //MapControl.Map.Layers.Add(new TileLayer(KnownTileSources.Create(KnownTileSource.OpenStreetMap)) { Name = "OSM" });
-            MapControl.Map.Layers.Add(new Layers.Layer
-            {
-                //Name = "Mapsforge",
-                //DataSource = new MapsforgeMapCSSVectorTileProvider(mapStream, mapcssfile),
-                Name = "Mapbox",
-                CRS = "EPSG:3857",
-                DataSource = new MapboxGLVectorTileProvider(mapStream, jsonStyler),
-                Opacity = 1,
-                Style = null,
-            });
+            //MapControl.Map.Layers.Add(new Layers.Layer
+            //{
+            //    //Name = "Mapsforge",
+            //    //DataSource = new MapsforgeMapCSSVectorTileProvider(mapStream, mapcssfile),
+            //    Name = "Mapbox",
+            //    CRS = "EPSG:3857",
+            //    DataSource = new MapboxGLVectorTileProvider(mapStream, jsonStyler),
+            //    Opacity = 1,
+            //    Style = null,
+            //});
 
             MapControl.Map.Viewport.Rotation = 0;
         }
