@@ -38,7 +38,11 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
                 return null;
 
             var feature = (VectorTileFeature) f;
-            var styles = new StyleCollection { Enabled = true, MinVisible = double.NegativeInfinity, MaxVisible = double.PositiveInfinity };
+
+            // Is this style for given feature?
+            if (_styleLayer.SourceLayerHash != feature.VectorTileLayer)
+                return null;
+
             var context = new EvaluationContext((float)resolution, feature);
 
             if (_styleLayer.Filter == null || _styleLayer.Filter.Evaluate(context))
@@ -56,27 +60,33 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
                     // Create style for this feature
                     if (_styleLayer.Paint != null || _styleLayer.Layout != null)
                     {
-                        foreach (var style in _converter.Convert(context, _styleLayer, _sprites))
+                        var styles = _converter.Convert(context, _styleLayer, _sprites);
+
+                        if (styles == null)
+                            return null;
+                        
+                        if (styles.Count == 1)
+                            return styles[0];
+
+                        var collection = new StyleCollection { Enabled = true, MinVisible = double.NegativeInfinity, MaxVisible = double.PositiveInfinity };
+
+                        foreach (var style in styles)
                         {
-                            styles.Add(style);
-                            if (styles.MinVisible < style.MinVisible)
-                                styles.MinVisible = style.MinVisible;
-                            if (styles.MaxVisible > style.MaxVisible)
-                                styles.MaxVisible = style.MaxVisible;
+                            collection.Add(style);
+                            if (collection.MinVisible < style.MinVisible)
+                                collection.MinVisible = style.MinVisible;
+                            if (collection.MaxVisible > style.MaxVisible)
+                                collection.MaxVisible = style.MaxVisible;
                         }
+
+                        return collection;
                     }
 
                     // TODO: Cache it
                 }
             }
 
-            if (styles.Count == 0)
-                return null;
-
-            if (styles.Count == 1)
-                return styles[0];
-
-            return styles;
+            return null;
         }
 
         private double FromResolution(double resolution)

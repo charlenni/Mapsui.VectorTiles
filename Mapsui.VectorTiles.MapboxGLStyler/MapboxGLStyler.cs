@@ -123,28 +123,21 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
                                 };
                             }
                         }
-                        // Create new vector layers
-                        var layers = CreateVectorLayers(sourceJson);
-                        // Add all styles to each layer
-                        foreach (var layer in layers)
+                        // Create new vector layer
+                        var layer = CreateVectorLayer(sourceJson);
+                        // Layer has a list of ThemeStyles, one for each style in style file
+                        layer.Style = new StyleCollection();
+                        // Add all ThemeStyles for this layer
+                        foreach (var styleLayer in styleJson.StyleLayers)
                         {
-                            layer.Style = new StyleCollection();
-
-                            // Add all ThemeStyles for this layer
-                            foreach (var styleLayer in styleJson.StyleLayers)
-                            {
-                                if (!layer.Name.Equals(styleLayer.Source + "." + styleLayer.SourceLayer, StringComparison.CurrentCultureIgnoreCase))
-                                    continue;
-
-                                ((StyleCollection)layer.Style).Add(styleLayer.Style);
-                            }
-
-                            // TODO: Only when Style avalible
-                            layer.Enabled = true;
-
-                            // Add layer to map
-                            map.Layers.Add(layer);
+                            ((StyleCollection)layer.Style).Add(styleLayer.Style);
                         }
+
+                        // TODO: Only when Style avalible
+                        layer.Enabled = true;
+
+                        // Add layer to map
+                        map.Layers.Add(layer);
                         break;
                     case "geoJson":
                         break;
@@ -185,31 +178,25 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
             };
         }
 
-        private IList<ILayer> CreateVectorLayers(Source source)
+        private ILayer CreateVectorLayer(Source source)
         {
-            var vectorLayers = new List<ILayer>();
             var tileSource = CreateTileSource(source);
-            var cache = new MemoryCache<IList<VectorTileLayer>>();  // All DataSources should use the same cache
-            var left = source.Bounds[0].Type == JTokenType.Float ? (float) source.Bounds[0] : -180.0f;
+            var cache = new MemoryCache<VectorTileLayer>();
+            var left = source.Bounds[0].Type == JTokenType.Float ? (float)source.Bounds[0] : -180.0f;
             var bottom = source.Bounds[1].Type == JTokenType.Float ? (float)source.Bounds[1] : -85.0511f;
             var right = source.Bounds[2].Type == JTokenType.Float ? (float)source.Bounds[2] : 180.0f;
             var top = source.Bounds[3].Type == JTokenType.Float ? (float)source.Bounds[3] : 85.0511f;
             var bounds = new BoundingBox(new Point(left, bottom), new Point(right, top));
 
-            foreach (var layer in source.VectorLayers)
+            var vectorLayer = new Layer(source.Name)
             {
-                var l = new Layers.Layer(source.Name+"."+layer.Id)
-                {
-                    DataSource = new VectorTileProvider(tileSource, layer.Id, bounds, cache),
-                    CRS = "EPSG:3857",
-                    MinVisible = (source.ZoomMax ?? 30).ToResolution(),
-                    MaxVisible = (source.ZoomMin ?? 0).ToResolution(),
-                };
+                DataSource = new VectorTileProvider(tileSource, bounds, cache),
+                CRS = "EPSG:3857",
+                MinVisible = (source.ZoomMax ?? 30).ToResolution(),
+                MaxVisible = (source.ZoomMin ?? 0).ToResolution(),
+            };
 
-                vectorLayers.Add(l);
-            }
-
-            return vectorLayers;
+            return vectorLayer;
         }
 
         private ITileSource CreateTileSource(Source source)

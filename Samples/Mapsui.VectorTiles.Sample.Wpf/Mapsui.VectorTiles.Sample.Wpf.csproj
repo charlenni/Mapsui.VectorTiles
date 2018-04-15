@@ -159,6 +159,10 @@
       <Project>{ee55b62d-ffa2-4c24-a4ad-7a47ace55ce5}</Project>
       <Name>Mapsui.Geometries</Name>
     </ProjectReference>
+    <ProjectReference Include="C:\Entwicklung\Mapsui\Mapsui.Rendering.Skia-PCL\Mapsui.Rendering.Skia-PCL.csproj">
+      <Project>{b4f5cdc7-8d34-4b7e-be62-206fc716d4ff}</Project>
+      <Name>Mapsui.Rendering.Skia-PCL</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\Entwicklung\Mapsui\Mapsui.UI.Wpf\Mapsui.UI.Wpf.csproj">
       <Project>{ae693902-feda-4034-a7c5-9aa9872f7878}</Project>
       <Name>Mapsui.UI.Wpf</Name>

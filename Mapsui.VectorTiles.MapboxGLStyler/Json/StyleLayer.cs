@@ -22,8 +22,18 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
         [JsonProperty("source")]
         public string Source { get; set; }
 
+        private string _sourceLayer;
+
         [JsonProperty("source-layer")]
-        public string SourceLayer { get; set; }
+        public string SourceLayer
+        {
+            get => _sourceLayer;
+            set
+            {
+                _sourceLayer = value;
+                SourceLayerHash = value.GetHashCode();
+            }
+        }
 
         [JsonProperty("filter")]
         public JArray NativeFilter { get; set; }
@@ -66,6 +76,8 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
                     MaxVisible = (_zoomMin ?? 0f).ToResolution();
             }
         }
+
+        public int SourceLayerHash { get; set; }
 
         public double MinVisible { get; set; } = 0;
 

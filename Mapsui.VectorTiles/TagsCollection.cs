@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
 
 namespace Mapsui.VectorTiles
 {
     /// <summary>
-    /// Represents a simple tags collection based on a list.
+    /// Represents a simple tags collection based on a dictionary.
     /// </summary>
     public class TagsCollection : Dictionary<string, JValue>
     {

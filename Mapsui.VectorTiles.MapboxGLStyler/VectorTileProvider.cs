@@ -11,20 +11,17 @@ namespace Mapsui.VectorTiles.MapboxGLFormat
 {
     public class VectorTileProvider : IProvider
     {
-        private ITileCache<IList<VectorTileLayer>> _cache;
+        private ITileCache<VectorTileLayer> _cache = new MemoryCache<VectorTileLayer>();
 
         public string CRS { get; set; }
 
         public ITileSource TileSource { get; }
 
-        public string LayerName { get; }
-
         public BoundingBox Bounds { get; }
 
-        public VectorTileProvider(ITileSource tileSource, string layerName, BoundingBox bounds, ITileCache<IList<VectorTileLayer>> cache = null)
+        public VectorTileProvider(ITileSource tileSource, BoundingBox bounds, ITileCache<VectorTileLayer> cache = null)
         {
             TileSource = tileSource;
-            LayerName = layerName;
             Bounds = bounds;
             _cache = cache;
         }
@@ -60,12 +57,13 @@ namespace Mapsui.VectorTiles.MapboxGLFormat
                     if (features == null)
                         continue;
 
-                    //foreach (var feature in features)
-                    //{
-                    //    if (box.Intersects(feature.Geometry.GetBoundingBox()))
-                    //        result.Add(feature);
-                    //}
-                    result.AddRange(features);
+                    // Draw only features, that are symbols/text or in bounding box
+                    foreach (var feature in features)
+                    {
+                        if (feature.Geometry is Point || feature.Geometry is MultiPoint || box.Intersects(feature.Geometry.GetBoundingBox()))
+                            result.Add(feature);
+                    }
+                    //result.AddRange(features);
                 }
                 catch (Exception e)
                 {
@@ -86,10 +84,10 @@ namespace Mapsui.VectorTiles.MapboxGLFormat
                 return null;
             }
 
-            var layers = _cache?.Find(tileInfo.Index);
+            var layer = _cache?.Find(tileInfo.Index);
 
             // Is tile in cache?
-            if (layers == null)
+            if (layer == null)
             {
                 // No, tile not in cache, so get tile data new
 
@@ -98,47 +96,42 @@ namespace Mapsui.VectorTiles.MapboxGLFormat
 
                 var buffer = TileSource.GetTile(tileInfo);
 
-                // TileSource knows nothing about this tile
-                while (buffer == null && int.Parse(tileInfo.Index.Level) >= 0)
-                {
-                    // Could we use data from a tile above
-                    tileInfo.Index = new TileIndex(tileInfo.Index.Col >> 1, tileInfo.Index.Row >> 1, (int.Parse(tileInfo.Index.Level) - 1).ToString());
-                    buffer = TileSource.GetTile(tileInfo);
-                }
+                //// TileSource knows nothing about this tile
+                //while (buffer == null && int.Parse(tileInfo.Index.Level) >= 0)
+                //{
+                //    // Could we use data from a tile above
+                //    tileInfo.Index = new TileIndex(tileInfo.Index.Col >> 1, tileInfo.Index.Row >> 1, (int.Parse(tileInfo.Index.Level) - 1).ToString());
+                //    buffer = TileSource.GetTile(tileInfo);
+                //}
 
-                if (buffer == null)
-                    return null;
+                //if (buffer == null)
+                //    return null;
 
-                layers = _cache?.Find(tileInfo.Index);
+                //layer = _cache?.Find(tileInfo.Index);
 
-                if (layers == null)
+                var tileData = TileSource.GetTile(tileInfo);
+
+                if (layer == null && tileData != null)
                 {
                     // Parse tile and convert it to a feature list
-                    layers = VectorTileParser.Parse(tileInfo,
-                        new GZipStream(new MemoryStream(TileSource.GetTile(tileInfo)), CompressionMode.Decompress));
+                    layer = VectorTileParser.Parse(tileInfo, new GZipStream(new MemoryStream(tileData), CompressionMode.Decompress));
 
                     // Save for later use
-                    if (_cache != null && layers.Count > 0)
-                        _cache.Add(tileInfo.Index, layers);
+                    if (_cache != null && layer.VectorTileFeatures.Count > 0)
+                        _cache.Add(tileInfo.Index, layer);
                 }
             }
 
             var features = new List<IFeature>();
 
-            // Get all features that belong to this layer
-            foreach (var layer in layers)
+            foreach (var feature in layer.VectorTileFeatures)
             {
-                if (layer.Name == LayerName)
-                {
-                    foreach (var feature in layer.VectorTileFeatures)
-                    {
-                        // Add to list of features
-                        features.Add(feature);
-                    }
-                }
+                // Add to list of features
+                features.Add(feature);
             }
 
             System.Diagnostics.Debug.WriteLine($"Cached Tile Level={tileInfo.Index.Level}, Col={tileInfo.Index.Col}, Row={tileInfo.Index.Row}");
+
             return features;
         }
     }

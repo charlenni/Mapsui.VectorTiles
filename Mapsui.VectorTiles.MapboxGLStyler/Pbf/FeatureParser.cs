@@ -11,14 +11,15 @@ namespace Mapsui.VectorTiles.MapboxGLFormat
         /// Converts a Mapbox feature in Mapbox coordinates into a VectorTileFeature in Mapsui coordinates
         /// </summary>
         /// <param name="tileInfo">TileInfo for tile informations like left top coordinates</param>
+        /// <param name="layerName">Name of vector tile layer to which this vector tile feature belongs</param>
         /// <param name="feature">Mapbox feature to convert</param>
         /// <param name="keys">List of known keys for this tile</param>
         /// <param name="values">List of known values for this tile</param>
         /// <param name="extent">Extent/width of this Mapbox formated tile (normally 4096)</param>
         /// <returns></returns>
-        public static VectorTileFeature Parse(TileInfo tileInfo, Tile.Feature feature, List<string> keys, List<Tile.Value> values, uint extent)
+        public static VectorTileFeature Parse(TileInfo tileInfo, string layerName, Tile.Feature feature, List<string> keys, List<Tile.Value> values, uint extent)
         {
-            var vtf = new VectorTileFeature(feature.Id.ToString());
+            var vtf = new VectorTileFeature(layerName, feature.Id.ToString());
 
             // Calc tile offset relative to upper left corner and resolution
             var offsetX = tileInfo.Extent.MinX;

@@ -14,6 +14,11 @@ namespace Mapsui.VectorTiles
     {
         public string Id { get; set; }
 
+        /// <summary>
+        /// Hash code of vector tile layer, to which this vector tile feature belongs
+        /// </summary>
+        public int VectorTileLayer { get; }
+
         public TagsCollection Tags { get; } = new TagsCollection();
 
         public GeometryType GeometryType { get; set; } = GeometryType.Unknown;
@@ -40,9 +45,10 @@ namespace Mapsui.VectorTiles
             get { return 1; }
         }
 
-        public VectorTileFeature(string id = "")
+        public VectorTileFeature(string layer, string id = "")
         {
-            this.Id = id;
+            VectorTileLayer = layer.GetHashCode();
+            Id = id;
         }
     }
 }
