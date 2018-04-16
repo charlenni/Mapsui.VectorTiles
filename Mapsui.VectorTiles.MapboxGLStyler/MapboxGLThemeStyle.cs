@@ -62,7 +62,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
                     {
                         var styles = _converter.Convert(context, _styleLayer, _sprites);
 
-                        if (styles == null)
+                        if (styles == null || styles.Count == 0)
                             return null;
                         
                         if (styles.Count == 1)

@@ -46,7 +46,10 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
                 var nextResolution = Stops[i].Key;
                 var nextColor = Stops[i].Value;
 
-                if (lastResolution >= resolution && resolution >= nextResolution)
+                if (resolution == nextResolution)
+                    return nextColor;
+
+                if (lastResolution >= resolution && resolution > nextResolution)
                 {
                     switch (stoppsType)
                     {

@@ -33,7 +33,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
             using (var reader = new StreamReader(input))
                 styleJson = JsonConvert.DeserializeObject<MapboxGL>(reader.ReadToEnd());
 
-            Zoom = styleJson.Zoom ?? 12;
+            Zoom = styleJson.Zoom ?? 20;
 
             // Save urls for sprite and glyphs
             SpriteUrl = styleJson.Sprite;
@@ -132,10 +132,8 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
                         {
                             ((StyleCollection)layer.Style).Add(styleLayer.Style);
                         }
-
-                        // TODO: Only when Style avalible
-                        layer.Enabled = true;
-
+                        // Only when Style avalible
+                        layer.Enabled = ((StyleCollection)layer.Style).Count > 0;
                         // Add layer to map
                         map.Layers.Add(layer);
                         break;
@@ -181,7 +179,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
         private ILayer CreateVectorLayer(Source source)
         {
             var tileSource = CreateTileSource(source);
-            var cache = new MemoryCache<VectorTileLayer>();
+            var cache = new MemoryCache<IList<IFeature>>();
             var left = source.Bounds[0].Type == JTokenType.Float ? (float)source.Bounds[0] : -180.0f;
             var bottom = source.Bounds[1].Type == JTokenType.Float ? (float)source.Bounds[1] : -85.0511f;
             var right = source.Bounds[2].Type == JTokenType.Float ? (float)source.Bounds[2] : 180.0f;
@@ -226,7 +224,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
                     new GlobalSphericalMercator(
                         source.Scheme == "tms" ? YAxis.TMS : YAxis.OSM,
                         minZoomLevel: source.ZoomMin ?? 0,
-                        maxZoomLevel: source.ZoomMax ?? 30
+                        maxZoomLevel: source.ZoomMax ?? 14
                     ));
             }
 

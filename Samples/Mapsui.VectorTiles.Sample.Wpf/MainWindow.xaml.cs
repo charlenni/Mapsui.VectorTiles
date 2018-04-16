@@ -89,6 +89,8 @@ namespace Mapsui.VectorTiles.Sample.Wpf
             //});
 
             MapControl.Map.Viewport.Rotation = 0;
+            MapControl.Map.NavigateTo(new Geometries.Point(825536.9246620, 5423536.19435341));
+            MapControl.Map.NavigateTo(MapControl.Map.Resolutions[20]);
         }
     }
 }

@@ -49,7 +49,10 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
                 var nextResolution = Stops[i].Key;
                 var nextValue = Stops[i].Value;
 
-                if (lastResolution >= resolution && resolution >= nextResolution)
+                if (resolution == nextResolution)
+                    return nextValue;
+
+                if (lastResolution >= resolution && resolution > nextResolution)
                 {
                     switch (stoppsType)
                     {
@@ -63,7 +66,14 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
                             if (Base - 1.0f < float.Epsilon)
                                 return lastValue + (nextValue - lastValue) * progress / difference;
                             else
-                                return lastValue + (float)((nextValue - lastValue) * Math.Pow(Base, progress - difference)); // (Math.Pow(Base, progress) - 1) / (Math.Pow(Base, difference) - 1));
+                            {
+                                //var r = FromResolution(resolution);
+                                //var lr = FromResolution(lastResolution);
+                                //var nr = FromResolution(nextResolution);
+                                var logBase = Math.Log(Base);
+                                //return lastValue + (float)((nextValue - lastValue) * (Math.Pow(Base, lr-r) - 1) / (Math.Pow(Base, lr-nr) - 1));
+                                return lastValue + (float)((nextValue - lastValue) * (Math.Exp(progress * logBase) - 1) / (Math.Exp(difference * logBase) - 1)); // (Math.Pow(Base, progress) - 1) / (Math.Pow(Base, difference) - 1));
+                            }
                         case StopsType.Categorical:
                             if (resolution - nextResolution < float.Epsilon)
                                 return nextValue;
@@ -76,6 +86,13 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
             }
 
             return lastValue;
+        }
+
+        private double FromResolution(double resolution)
+        {
+            var zoom = Math.Log(78271.51696401953125 / resolution, 2);
+
+            return zoom < 0 ? 0 : zoom;
         }
     }
 }

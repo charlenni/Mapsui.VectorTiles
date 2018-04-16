@@ -88,6 +88,10 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
 
         public IList<IStyle> ConvertFillLayer(EvaluationContext context, StyleLayer styleLayer, Dictionary<string, Styles.Sprite> spriteAtlas)
         {
+            // Height of building isn't used (that's what Point contains in tags here)
+            if (context.Feature.GeometryType == GeometryType.Point)
+                return null;
+
             List<IStyle> result = new List<IStyle>();
 
             // visibility
@@ -137,8 +141,8 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             if (paint?.FillOpacity != null)
             {
                 var opacity = paint.FillOpacity;
-                styleVector.Fill.Color = ColorOpacity(styleVector.Fill.Color, opacity);
-                line.Color = ColorOpacity(line.Color, opacity);
+                styleVector.Fill.Color = Color.Opacity(styleVector.Fill.Color, opacity);
+                line.Color = Color.Opacity(line.Color, opacity);
             }
 
             // fill-antialias
@@ -332,7 +336,13 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
 
         public IList<IStyle> ConvertSymbolLayer(EvaluationContext context, StyleLayer styleLayer, Dictionary<string, Styles.Sprite> spriteAtlas)
         {
+            string styleLabelText = string.Empty;
             List<IStyle> result = new List<IStyle>();
+
+
+
+            //return result;
+
 
             // visibility
             //   Optional enum. One of visible, none. Defaults to visible.
@@ -345,20 +355,26 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
 
             var styleLabel = new LabelStyle
             {
+                Enabled = false,
                 Halo = new Pen { Color = Color.Transparent, Width = 0 },
                 CollisionDetection = true,
-                BackColor = null
+                BackColor = null,
             };
+
+            styleLabel.Font.Size = 16;
+
             var styleVector = new VectorStyle();
-            var styleSymbol = new SymbolStyle();
+
+            var styleSymbol = new SymbolStyle
+            {
+                Enabled = false,
+            };
 
             var line = new Pen
             {
                 Width = 1,
                 PenStrokeCap = PenStrokeCap.Butt,
             };
-
-
 
             // symbol-placement
             //   Optional enum. One of point, line. Defaults to point. Interval.
@@ -380,7 +396,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             //   Value to use for a text label. Feature properties are specified using tokens like {field_name}.
             if (layout?.TextField != null)
             {
-                var text = ReplaceFields(layout.TextField.Trim(), context.Feature.Tags);
+                styleLabelText = ReplaceFields(layout.TextField.Trim(), context.Feature.Tags);
 
                 // text-transform
                 //   Optional enum. One of none, uppercase, lowercase. Defaults to none. Requires text-field. Interval.
@@ -390,15 +406,15 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                     switch (layout.TextTransform)
                     {
                         case "uppercase":
-                            text = text.ToUpper();
+                            styleLabelText = styleLabelText.ToUpper();
                             break;
                         case "lowercase":
-                            text = text.ToLower();
+                            styleLabelText = styleLabelText.ToLower();
                             break;
                     }
                 }
 
-                styleLabel.Text = text;
+                styleLabel.Text = styleLabelText;
 
                 // text-color
                 //   Optional color. Defaults to #000000. Requires text-field. Exponential.
@@ -478,6 +494,10 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 // text-max-width
                 //   Optional number. Units in em. Defaults to 10. Requires text-field. Exponential.
                 //   The maximum line width for text wrapping.
+                if (layout?.TextMaxWidth != null)
+                {
+                    styleLabel.MaxWidth = layout.TextMaxWidth.Evaluate(context.Resolution);
+                }
 
                 // text-line-height
                 //   Optional number. Units in em. Defaults to 1.2. Requires text-field. Exponential.
@@ -497,6 +517,45 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 //   Part of the text placed closest to the anchor.
                 if (layout?.TextAnchor != null)
                 {
+                    switch (layout.TextAnchor)
+                    {
+                        case "left":
+                            styleLabel.VerticalAlignment = LabelStyle.VerticalAlignmentEnum.Center;
+                            styleLabel.HorizontalAlignment = LabelStyle.HorizontalAlignmentEnum.Left;
+                            break;
+                        case "right":
+                            styleLabel.VerticalAlignment = LabelStyle.VerticalAlignmentEnum.Center;
+                            styleLabel.HorizontalAlignment = LabelStyle.HorizontalAlignmentEnum.Right;
+                            break;
+                        case "top":
+                            styleLabel.VerticalAlignment = LabelStyle.VerticalAlignmentEnum.Top;
+                            styleLabel.HorizontalAlignment = LabelStyle.HorizontalAlignmentEnum.Center;
+                            break;
+                        case "bottom":
+                            styleLabel.VerticalAlignment = LabelStyle.VerticalAlignmentEnum.Bottom;
+                            styleLabel.HorizontalAlignment = LabelStyle.HorizontalAlignmentEnum.Center;
+                            break;
+                        case "top-left":
+                            styleLabel.VerticalAlignment = LabelStyle.VerticalAlignmentEnum.Top;
+                            styleLabel.HorizontalAlignment = LabelStyle.HorizontalAlignmentEnum.Left;
+                            break;
+                        case "top-right":
+                            styleLabel.VerticalAlignment = LabelStyle.VerticalAlignmentEnum.Top;
+                            styleLabel.HorizontalAlignment = LabelStyle.HorizontalAlignmentEnum.Right;
+                            break;
+                        case "bottom-left":
+                            styleLabel.VerticalAlignment = LabelStyle.VerticalAlignmentEnum.Bottom;
+                            styleLabel.HorizontalAlignment = LabelStyle.HorizontalAlignmentEnum.Left;
+                            break;
+                        case "bottom-right":
+                            styleLabel.VerticalAlignment = LabelStyle.VerticalAlignmentEnum.Bottom;
+                            styleLabel.HorizontalAlignment = LabelStyle.HorizontalAlignmentEnum.Right;
+                            break;
+                        default:
+                            styleLabel.VerticalAlignment = LabelStyle.VerticalAlignmentEnum.Center;
+                            styleLabel.HorizontalAlignment = LabelStyle.HorizontalAlignmentEnum.Center;
+                            break;
+                    }
                 }
 
                 // text-max-angle
@@ -523,19 +582,37 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 //   while negative values indicate left and up.
                 if (layout?.TextOffset != null)
                 {
+                    var x = layout.TextOffset[0] * styleLabel.Font.Size;
+                    var y = layout.TextOffset[1] * styleLabel.Font.Size;
+                    styleLabel.Offset = new Offset(x, y, false);
                 }
 
                 // text-allow-overlap
                 //   Optional boolean. Defaults to false. Requires text-field. Interval.
                 //   If true, the text will be visible even if it collides with other previously drawn symbols.
+                if (layout?.TextAllowOverlap != null)
+                {
+                    // TODO
+                    layout.TextAllowOverlap.Evaluate(context.Resolution);
+                }
 
                 // text-ignore-placement
                 //   Optional boolean. Defaults to false. Requires text-field. Interval.
                 //   If true, other symbols can be visible even if they collide with the text.
+                if (layout?.TextIgnorePlacement != null)
+                {
+                    // TODO
+                    layout.TextIgnorePlacement.Evaluate(context.Resolution);
+                }
 
                 // text-optional
                 //   Optional boolean. Defaults to false. Requires text-field. Requires icon-image. Interval.
                 //   If true, icons will display without their corresponding text when the text collides with other symbols and the icon does not.
+                if (layout?.TextOptional != null)
+                {
+                    // TODO
+                    layout.TextOptional.Evaluate(context.Resolution);
+                }
 
                 // text-halo-blur
                 //   Optional number. Units in pixels. Defaults to 0. Requires text-field. Exponential.
@@ -553,19 +630,41 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 {
                     styleSymbol.BitmapId = spriteAtlas[name].Atlas;
                 }
+                else
+                {
+                    // No sprite found
+                    styleSymbol.BitmapId = -1;
+                    // Log information
+                    Logging.Logger.Log(Logging.LogLevel.Information, $"Sprite {name} not found");
+                }
 
                 // icon-allow-overlap
                 //   Optional boolean. Defaults to false. Requires icon-image. Interval.
                 //   If true, the icon will be visible even if it collides with other previously drawn symbols.
+                if (layout?.IconAllowOverlap != null)
+                {
+                    // TODO
+                    layout.IconAllowOverlap.Evaluate(context.Resolution);
+                }
 
                 // icon-ignore-placement
                 //   Optional boolean. Defaults to false. Requires icon-image. Interval.
                 //   If true, other symbols can be visible even if they collide with the icon.
+                if (layout?.IconIgnorePlacement != null)
+                {
+                    // TODO
+                    layout.IconIgnorePlacement.Evaluate(context.Resolution);
+                }
 
                 // icon-optional
                 //   Optional boolean. Defaults to false. Requires icon-image. Requires text-field. Interval.
                 //   If true, text will display without their corresponding icons when the icon collides 
                 //   with other symbols and the text does not.
+                if (layout?.IconOptional != null)
+                {
+                    // TODO
+                    layout.IconOptional.Evaluate(context.Resolution);
+                }
 
                 // icon-rotation-alignment
                 //   Optional enum. One of map, viewport. Defaults to viewport. Requires icon-image. Interval.
@@ -574,9 +673,13 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 // icon-size
                 //   Optional number. Defaults to 1. Requires icon-image. Exponential.
                 //   Scale factor for icon. 1 is original size, 3 triples the size.
+                if (layout?.IconSize != null)
+                {
+                    styleSymbol.SymbolScale = layout.IconSize.Evaluate(context.Resolution);
+                }
 
                 // icon-rotate
-                //   Optional number.Units in degrees.Defaults to 0. Requires icon-image. Exponential.
+                //   Optional number. Units in degrees. Defaults to 0. Requires icon-image. Exponential.
                 //   Rotates the icon clockwise.
 
                 // icon-padding
@@ -592,10 +695,20 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 //   Optional array. Defaults to 0,0. Requires icon-image. Exponential.
                 //   Offset distance of icon from its anchor. Positive values indicate right and down, 
                 //   while negative values indicate left and up.
+                if (layout?.IconOffset != null)
+                {
+                    var x = layout.IconOffset[0];
+                    var y = layout.IconOffset[1];
+                    styleSymbol.SymbolOffset = new Offset(x, y, false);
+                }
 
                 // icon-opacity
                 //   Optional number. Defaults to 1. Requires icon-image. Exponential.
                 //   The opacity at which the icon will be drawn.
+                if (layout?.IconOpacity != null)
+                {
+                    styleSymbol.Opacity = layout.IconOpacity.Evaluate(context.Resolution);
+                }
 
                 // icon-color
                 //   Optional color. Defaults to #000000. Requires icon-image. Exponential.
@@ -621,8 +734,6 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 // icon-translate-anchor
                 //   Optional enum. One of map, viewport. Defaults to map. Requires icon-image. Requires icon-translate. Interval.
                 //   Control whether the translation is relative to the map(north) or viewport(screen).
-
-
             }
 
             if (context.Feature.GeometryType == GeometryType.Polygon)
@@ -632,9 +743,12 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
 
             if (context.Feature.GeometryType == GeometryType.Point)
             {
-                styleLabel.Enabled = true;
+                if (!string.IsNullOrEmpty(styleLabelText))
+                {
+                    styleLabel.Enabled = true;
 
-                result.Add(styleLabel);
+                    result.Add(styleLabel);
+                }
 
                 if (styleSymbol.BitmapId >= 0)
                 {
@@ -651,20 +765,6 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             }
 
             return result;
-        }
-
-        /// <summary>
-        /// Change alpha channel from given color to respect opacity
-        /// </summary>
-        /// <param name="color">Mapsui Color to change</param>
-        /// <param name="opacity">Opacity of the new color</param>
-        /// <returns>New color respecting old alpha and new opacity</returns>
-        private Color ColorOpacity(Color color, float? opacity)
-        {
-            if (opacity == null)
-                return color;
-
-            return new Color(color.R, color.G, color.B, (int)Math.Round(color.A * (float)opacity));
         }
 
         Regex regExFields = new Regex(@"\{(.*?)\}", (RegexOptions)8);
@@ -703,160 +803,5 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
 
             return result;
         }
-
-        /// <summary>
-        /// Known HTML color names and hex code for RGB color
-        /// </summary>
-        private readonly Dictionary<string, string> knownColors = new Dictionary<string, string>
-        {
-            {"AliceBlue", "#F0F8FF"},
-            {"AntiqueWhite", "#FAEBD7"},
-            {"Aqua", "#00FFFF"},
-            {"Aquamarine", "#7FFFD4"},
-            {"Azure", "#F0FFFF"},
-            {"Beige", "#F5F5DC"},
-            {"Bisque", "#FFE4C4"},
-            {"Black", "#000000"},
-            {"BlanchedAlmond", "#FFEBCD"},
-            {"Blue", "#0000FF"},
-            {"BlueViolet", "#8A2BE2"},
-            {"Brown", "#A52A2A"},
-            {"BurlyWood", "#DEB887"},
-            {"CadetBlue", "#5F9EA0"},
-            {"Chartreuse", "#7FFF00"},
-            {"Chocolate", "#D2691E"},
-            {"Coral", "#FF7F50"},
-            {"CornflowerBlue", "#6495ED"},
-            {"Cornsilk", "#FFF8DC"},
-            {"Crimson", "#DC143C"},
-            {"Cyan", "#00FFFF"},
-            {"DarkBlue", "#00008B"},
-            {"DarkCyan", "#008B8B"},
-            {"DarkGoldenRod", "#B8860B"},
-            {"DarkGray", "#A9A9A9"},
-            {"DarkGrey", "#A9A9A9"},
-            {"DarkGreen", "#006400"},
-            {"DarkKhaki", "#BDB76B"},
-            {"DarkMagenta", "#8B008B"},
-            {"DarkOliveGreen", "#556B2F"},
-            {"DarkOrange", "#FF8C00"},
-            {"DarkOrchid", "#9932CC"},
-            {"DarkRed", "#8B0000"},
-            {"DarkSalmon", "#E9967A"},
-            {"DarkSeaGreen", "#8FBC8F"},
-            {"DarkSlateBlue", "#483D8B"},
-            {"DarkSlateGray", "#2F4F4F"},
-            {"DarkSlateGrey", "#2F4F4F"},
-            {"DarkTurquoise", "#00CED1"},
-            {"DarkViolet", "#9400D3"},
-            {"DeepPink", "#FF1493"},
-            {"DeepSkyBlue", "#00BFFF"},
-            {"DimGray", "#696969"},
-            {"DimGrey", "#696969"},
-            {"DodgerBlue", "#1E90FF"},
-            {"FireBrick", "#B22222"},
-            {"FloralWhite", "#FFFAF0"},
-            {"ForestGreen", "#228B22"},
-            {"Fuchsia", "#FF00FF"},
-            {"Gainsboro", "#DCDCDC"},
-            {"GhostWhite", "#F8F8FF"},
-            {"Gold", "#FFD700"},
-            {"GoldenRod", "#DAA520"},
-            {"Gray", "#808080"},
-            {"Grey", "#808080"},
-            {"Green", "#008000"},
-            {"GreenYellow", "#ADFF2F"},
-            {"HoneyDew", "#F0FFF0"},
-            {"HotPink", "#FF69B4"},
-            {"IndianRed ", "#CD5C5C"},
-            {"Indigo ", "#4B0082"},
-            {"Ivory", "#FFFFF0"},
-            {"Khaki", "#F0E68C"},
-            {"Lavender", "#E6E6FA"},
-            {"LavenderBlush", "#FFF0F5"},
-            {"LawnGreen", "#7CFC00"},
-            {"LemonChiffon", "#FFFACD"},
-            {"LightBlue", "#ADD8E6"},
-            {"LightCoral", "#F08080"},
-            {"LightCyan", "#E0FFFF"},
-            {"LightGoldenRodYellow", "#FAFAD2"},
-            {"LightGray", "#D3D3D3"},
-            {"LightGrey", "#D3D3D3"},
-            {"LightGreen", "#90EE90"},
-            {"LightPink", "#FFB6C1"},
-            {"LightSalmon", "#FFA07A"},
-            {"LightSeaGreen", "#20B2AA"},
-            {"LightSkyBlue", "#87CEFA"},
-            {"LightSlateGray", "#778899"},
-            {"LightSlateGrey", "#778899"},
-            {"LightSteelBlue", "#B0C4DE"},
-            {"LightYellow", "#FFFFE0"},
-            {"Lime", "#00FF00"},
-            {"LimeGreen", "#32CD32"},
-            {"Linen", "#FAF0E6"},
-            {"Magenta", "#FF00FF"},
-            {"Maroon", "#800000"},
-            {"MediumAquaMarine", "#66CDAA"},
-            {"MediumBlue", "#0000CD"},
-            {"MediumOrchid", "#BA55D3"},
-            {"MediumPurple", "#9370DB"},
-            {"MediumSeaGreen", "#3CB371"},
-            {"MediumSlateBlue", "#7B68EE"},
-            {"MediumSpringGreen", "#00FA9A"},
-            {"MediumTurquoise", "#48D1CC"},
-            {"MediumVioletRed", "#C71585"},
-            {"MidnightBlue", "#191970"},
-            {"MintCream", "#F5FFFA"},
-            {"MistyRose", "#FFE4E1"},
-            {"Moccasin", "#FFE4B5"},
-            {"NavajoWhite", "#FFDEAD"},
-            {"Navy", "#000080"},
-            {"OldLace", "#FDF5E6"},
-            {"Olive", "#808000"},
-            {"OliveDrab", "#6B8E23"},
-            {"Orange", "#FFA500"},
-            {"OrangeRed", "#FF4500"},
-            {"Orchid", "#DA70D6"},
-            {"PaleGoldenRod", "#EEE8AA"},
-            {"PaleGreen", "#98FB98"},
-            {"PaleTurquoise", "#AFEEEE"},
-            {"PaleVioletRed", "#DB7093"},
-            {"PapayaWhip", "#FFEFD5"},
-            {"PeachPuff", "#FFDAB9"},
-            {"Peru", "#CD853F"},
-            {"Pink", "#FFC0CB"},
-            {"Plum", "#DDA0DD"},
-            {"PowderBlue", "#B0E0E6"},
-            {"Purple", "#800080"},
-            {"RebeccaPurple", "#663399"},
-            {"Red", "#FF0000"},
-            {"RosyBrown", "#BC8F8F"},
-            {"RoyalBlue", "#4169E1"},
-            {"SaddleBrown", "#8B4513"},
-            {"Salmon", "#FA8072"},
-            {"SandyBrown", "#F4A460"},
-            {"SeaGreen", "#2E8B57"},
-            {"SeaShell", "#FFF5EE"},
-            {"Sienna", "#A0522D"},
-            {"Silver", "#C0C0C0"},
-            {"SkyBlue", "#87CEEB"},
-            {"SlateBlue", "#6A5ACD"},
-            {"SlateGray", "#708090"},
-            {"SlateGrey", "#708090"},
-            {"Snow", "#FFFAFA"},
-            {"SpringGreen", "#00FF7F"},
-            {"SteelBlue", "#4682B4"},
-            {"Tan", "#D2B48C"},
-            {"Teal", "#008080"},
-            {"Thistle", "#D8BFD8"},
-            {"Tomato", "#FF6347"},
-            {"Turquoise", "#40E0D0"},
-            {"Violet", "#EE82EE"},
-            {"Wheat", "#F5DEB3"},
-            {"White", "#FFFFFF"},
-            {"WhiteSmoke", "#F5F5F5"},
-            {"Yellow", "#FFFF00"},
-            {"YellowGreen", "#9ACD32"}
-        };
     }
 }

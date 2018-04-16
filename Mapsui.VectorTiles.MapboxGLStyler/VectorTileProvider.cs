@@ -11,7 +11,7 @@ namespace Mapsui.VectorTiles.MapboxGLFormat
 {
     public class VectorTileProvider : IProvider
     {
-        private ITileCache<VectorTileLayer> _cache = new MemoryCache<VectorTileLayer>();
+        private ITileCache<IList<IFeature>> _cache;
 
         public string CRS { get; set; }
 
@@ -19,7 +19,7 @@ namespace Mapsui.VectorTiles.MapboxGLFormat
 
         public BoundingBox Bounds { get; }
 
-        public VectorTileProvider(ITileSource tileSource, BoundingBox bounds, ITileCache<VectorTileLayer> cache = null)
+        public VectorTileProvider(ITileSource tileSource, BoundingBox bounds, ITileCache<IList<IFeature>> cache = null)
         {
             TileSource = tileSource;
             Bounds = bounds;
@@ -84,55 +84,122 @@ namespace Mapsui.VectorTiles.MapboxGLFormat
                 return null;
             }
 
-            var layer = _cache?.Find(tileInfo.Index);
+            var features = _cache?.Find(tileInfo.Index);
 
             // Is tile in cache?
-            if (layer == null)
+            if (features == null)
             {
                 // No, tile not in cache, so get tile data new
 
                 // Calc tile offset relative to upper left corner
                 double factor = (tileInfo.Extent.MaxX - tileInfo.Extent.MinX) / 4096.0;
 
-                var buffer = TileSource.GetTile(tileInfo);
-
-                //// TileSource knows nothing about this tile
-                //while (buffer == null && int.Parse(tileInfo.Index.Level) >= 0)
-                //{
-                //    // Could we use data from a tile above
-                //    tileInfo.Index = new TileIndex(tileInfo.Index.Col >> 1, tileInfo.Index.Row >> 1, (int.Parse(tileInfo.Index.Level) - 1).ToString());
-                //    buffer = TileSource.GetTile(tileInfo);
-                //}
-
-                //if (buffer == null)
-                //    return null;
-
-                //layer = _cache?.Find(tileInfo.Index);
-
                 var tileData = TileSource.GetTile(tileInfo);
 
-                if (layer == null && tileData != null)
+                if (tileData == null)
+                {
+                    // Tile isn't in this source, so construct one from lower zoom level
+                    var maxZoom = int.Parse(BruTile.Utilities.GetNearestLevel(TileSource.Schema.Resolutions, TileSource.Schema.Resolutions[(TileSource.Schema.Resolutions.Count-1).ToString()].UnitsPerPixel));
+                    // Get bounds of this tile
+                    var bounds = new BoundingBox(new Point(tileInfo.Extent.MinX, tileInfo.Extent.MinY), new Point(tileInfo.Extent.MaxX, tileInfo.Extent.MaxY));
+                    // Calc new TileInfo
+                    var zoom = int.Parse(tileInfo.Index.Level);
+
+                    // If zoom is ok, than there are no tile informations for this tile
+                    if (zoom <= maxZoom)
+                        return null;
+
+                    var tileX = tileInfo.Index.Col;
+                    var tileY = tileInfo.Index.Row;
+
+                    while (zoom > maxZoom)
+                    {
+                        zoom--;
+                        tileX = tileX >> 1;
+                        tileY = tileY >> 1;
+                    }
+                    var newTileInfo = new TileInfo { Index = new TileIndex(tileX, tileY, zoom.ToString()) };
+                    // Now get features for this overview tile
+                    var newFeatures = GetFeaturesInTile(newTileInfo);
+                    // Extract all features, which belong to small tile
+                    features = new List<IFeature>();
+                    foreach (var feature in newFeatures)
+                    {
+                        if (feature is VectorTileFeature vft)
+                        {
+                            if (vft.Bounds.Intersects(bounds))
+                                features.Add(vft);
+                        }
+                    }
+
+                    // Save for later use
+                    if (_cache != null)
+                        _cache.Add(tileInfo.Index, features);
+                }
+
+                if (features == null && tileData != null)
                 {
                     // Parse tile and convert it to a feature list
-                    layer = VectorTileParser.Parse(tileInfo, new GZipStream(new MemoryStream(tileData), CompressionMode.Decompress));
+                    Stream stream = new MemoryStream(tileData);
+
+                    if (IsGZipped(stream))
+                        stream = new GZipStream(stream, CompressionMode.Decompress);
+
+                    var layer = VectorTileParser.Parse(tileInfo, stream);
+
+                    features = new List<IFeature>();
+                    foreach (var feature in layer.VectorTileFeatures)
+                    {
+                        features.Add(feature);
+                    }
 
                     // Save for later use
                     if (_cache != null && layer.VectorTileFeatures.Count > 0)
-                        _cache.Add(tileInfo.Index, layer);
+                        _cache.Add(tileInfo.Index, features);
+
+                    stream = null;
                 }
-            }
-
-            var features = new List<IFeature>();
-
-            foreach (var feature in layer.VectorTileFeatures)
-            {
-                // Add to list of features
-                features.Add(feature);
             }
 
             System.Diagnostics.Debug.WriteLine($"Cached Tile Level={tileInfo.Index.Level}, Col={tileInfo.Index.Col}, Row={tileInfo.Index.Row}");
 
             return features;
+        }
+
+        /// <summary>
+        /// Check, if stream contains gzipped data 
+        /// </summary>
+        /// <param name="stream">Stream to check</param>
+        /// <returns>True, if the stream is gzipped</returns>
+        bool IsGZipped(Stream stream)
+        {
+            return IsZipped(stream, 3, "1F-8B-08");
+        }
+
+        /// <summary>
+        /// Check, if stream contains zipped data
+        /// </summary>
+        /// <param name="stream">Stream to check</param>
+        /// <param name="signatureSize">Length of bytes to check for signature</param>
+        /// <param name="expectedSignature">Signature to check</param>
+        /// <returns>True, if the stream is zipped</returns>
+        bool IsZipped(Stream stream, int signatureSize = 4, string expectedSignature = "50-4B-03-04")
+        {
+            if (stream.Length < signatureSize)
+                return false;
+            byte[] signature = new byte[signatureSize];
+            int bytesRequired = signatureSize;
+            int index = 0;
+            while (bytesRequired > 0)
+            {
+                int bytesRead = stream.Read(signature, index, bytesRequired);
+                bytesRequired -= bytesRead;
+                index += bytesRead;
+            }
+            stream.Seek(0, SeekOrigin.Begin);
+            string actualSignature = BitConverter.ToString(signature);
+            if (actualSignature == expectedSignature) return true;
+            return false;
         }
     }
 }

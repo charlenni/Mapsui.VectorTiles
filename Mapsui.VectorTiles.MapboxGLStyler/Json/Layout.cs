@@ -23,8 +23,9 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
         [JsonProperty("text-field")]
         public string TextField { get; set; }
 
+        [JsonConverter(typeof(StoppedFloatConverter))]
         [JsonProperty("text-max-width")]
-        public object TextMaxWidth { get; set; }
+        public StoppedFloat TextMaxWidth { get; set; }
 
         [JsonConverter(typeof(StoppedFloatConverter))]
         [JsonProperty("text-size")]
@@ -35,10 +36,22 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
         public StoppedFloat TextPadding { get; set; }
 
         [JsonProperty("text-offset")]
-        public object TextOffset { get; set; }
+        public float[] TextOffset { get; set; }
+
+        [JsonConverter(typeof(StoppedBooleanConverter))]
+        [JsonProperty("text-optional")]
+        public StoppedBoolean TextOptional { get; set; }
+
+        [JsonConverter(typeof(StoppedBooleanConverter))]
+        [JsonProperty("text-allow-overlap")]
+        public StoppedBoolean TextAllowOverlap { get; set; }
+
+        [JsonConverter(typeof(StoppedBooleanConverter))]
+        [JsonProperty("text-ignore-placement")]
+        public StoppedBoolean TextIgnorePlacement { get; set; }
 
         [JsonProperty("text-anchor")]
-        public object TextAnchor { get; set; }
+        public string TextAnchor { get; set; }
 
         [JsonProperty("symbol-placement")]
         public object SymbolPlacement { get; set; }
@@ -49,14 +62,18 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
         [JsonProperty("icon-rotation-alignment")]
         public string IconRotationAlignment { get; set; }
 
+        [JsonProperty("text-max-angle")]
+        public int? TextMaxAngle { get; set; }
+
         [JsonProperty("text-transform")]
         public string TextTransform { get; set; }
 
         [JsonProperty("text-letter-spacing")]
         public float? TextLetterSpacing { get; set; }
 
+        [JsonConverter(typeof(StoppedFloatConverter))]
         [JsonProperty("text-line-height")]
-        public float? TextLineHeight { get; set; }
+        public StoppedFloat TextLineHeight { get; set; }
 
         [JsonConverter(typeof(StoppedStringConverter))]
         [JsonProperty("icon-image")]
@@ -72,13 +89,23 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
         [JsonProperty("icon-size")]
         public StoppedFloat IconSize { get; set; }
 
+        [JsonProperty("icon-offset")]
+        public float[] IconOffset { get; set; }
+
+        [JsonConverter(typeof(StoppedBooleanConverter))]
+        [JsonProperty("icon-optional")]
+        public StoppedBoolean IconOptional { get; set; }
+
+        [JsonConverter(typeof(StoppedFloatConverter))]
+        [JsonProperty("icon-opacity")]
+        public StoppedFloat IconOpacity { get; set; }
+
+        [JsonConverter(typeof(StoppedBooleanConverter))]
         [JsonProperty("icon-allow-overlap")]
-        public bool? IconAllowOverlap { get; set; }
+        public StoppedBoolean IconAllowOverlap { get; set; }
 
+        [JsonConverter(typeof(StoppedBooleanConverter))]
         [JsonProperty("icon-ignore-placement")]
-        public bool? IconIgnorePlacement { get; set; }
-
-        [JsonProperty("text-max-angle")]
-        public int? TextMaxAngle { get; set; }
+        public StoppedBoolean IconIgnorePlacement { get; set; }
     }
 }

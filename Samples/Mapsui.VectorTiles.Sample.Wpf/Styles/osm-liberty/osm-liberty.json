@@ -6,7 +6,7 @@
   },
   "sources": {
     "natural_earth_shaded_relief": {
-      "maxzoom": 20,
+      "maxzoom": 30,
       "tileSize": 256,
       "tiles": [
         "https://klokantech.github.io/naturalearthtiles/tiles/natural_earth_2_shaded_relief.raster/{z}/{x}/{y}.png"

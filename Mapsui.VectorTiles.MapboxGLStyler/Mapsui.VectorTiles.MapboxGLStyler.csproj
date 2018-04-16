@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Converter\ColorConverter.cs" />
     <Compile Include="Converter\StoppedColorConverter.cs" />
+    <Compile Include="Converter\StoppedBooleanConverter.cs" />
     <Compile Include="Converter\StyleLayerConverter.cs" />
     <Compile Include="Converter\StoppedStringConverter.cs" />
     <Compile Include="Converter\FilterConverter.cs" />
@@ -58,6 +59,7 @@
     <Compile Include="Extensions\ZoomExtensions.cs" />
     <Compile Include="Json\Layout.cs" />
     <Compile Include="Json\StoppedFloat.cs" />
+    <Compile Include="Json\StoppedBoolean.cs" />
     <Compile Include="Json\StoppedString.cs" />
     <Compile Include="Json\Sprite.cs" />
     <Compile Include="Json\Source.cs" />

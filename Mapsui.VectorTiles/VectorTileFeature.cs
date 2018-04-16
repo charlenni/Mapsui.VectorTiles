@@ -21,9 +21,13 @@ namespace Mapsui.VectorTiles
 
         public TagsCollection Tags { get; } = new TagsCollection();
 
+        public int Rank { get; set; } = int.MaxValue;
+
         public GeometryType GeometryType { get; set; } = GeometryType.Unknown;
 
         public IGeometry Geometry { get; set; }
+
+        public BoundingBox Bounds { get; set; }
 
         public IDictionary<IStyle, object> RenderedGeometry { get; } = null;
 

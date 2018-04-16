@@ -7,31 +7,28 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
     /// <summary>
     /// Class holding StoppedString data in Json format
     /// </summary>
-    public class StoppedString
+    public class StoppedBoolean
     {
-        [JsonProperty("base")]
-        public float Base { get; set; } = 1f;
-
         [JsonProperty("stops")]
-        public IList<KeyValuePair<float, string>> Stops { get; set; }
+        public IList<KeyValuePair<float, bool>> Stops { get; set; }
 
-        public string SingleVal { get; set; } = string.Empty;
+        public bool? SingleVal { get; set; } = null;
 
         /// <summary>
-        /// Calculate the correct string for a stopped function
-        /// No StoppsType needed, because strings couldn't interpolated :)
+        /// Calculate the correct boolean for a stopped function
+        /// No StoppsType needed, because booleans couldn't interpolated :)
         /// </summary>
         /// <param name="contextResolution">Resolution factor for calculation </param>
         /// <returns>Value for this stopp respecting resolution factor and type</returns>
-        public string Evaluate(float? contextResolution)
+        public bool Evaluate(float? contextResolution)
         {
             // Are there no stopps, but a single value?
-            if (SingleVal != string.Empty)
-                return SingleVal;
+            if (SingleVal != null)
+                return (bool)SingleVal;
 
             // Are there no stopps in array
             if (Stops.Count == 0)
-                return string.Empty;
+                return false;
 
             float resolution = contextResolution ?? (float)0f.ToResolution();
 

@@ -33,6 +33,7 @@ namespace Mapsui.VectorTiles.MapboxGLFormat
                 foreach (var feature in layer.Features)
                 {
                     var vectorTileFeature = FeatureParser.Parse(tileInfo, layer.Name, feature, layer.Keys, layer.Values, extent);
+
                     // Add to layer
                     vectorTileLayer.VectorTileFeatures.Add(vectorTileFeature);
                 }

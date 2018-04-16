@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using BruTile;
 using Mapsui.Geometries;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
 namespace Mapsui.VectorTiles.MapboxGLFormat
@@ -119,8 +120,14 @@ namespace Mapsui.VectorTiles.MapboxGLFormat
                     break;
             }
 
+            // Save bounding box for later use
+            vtf.Bounds = vtf.Geometry.GetBoundingBox();
+
             // now add the tags
             vtf.Tags.Add(TagsParser.Parse(keys, values, feature.Tags));
+
+            if (vtf.Tags.TryGetValue("rank", out var rank) && rank.Type == Newtonsoft.Json.Linq.JTokenType.Integer)
+                vtf.Rank = rank.ToObject<int>();
 
             return vtf;
         }
