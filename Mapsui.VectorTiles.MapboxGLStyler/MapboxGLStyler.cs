@@ -42,6 +42,9 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
             var filterConverter = new FilterConverter();
             var styleLayerConverter = new StyleLayerConverter();
 
+            // Create SymbolProvider, that belongs to all Styles and VectorTileLayers
+            var symbolProvider = new SymbolProvider(map);
+
             foreach (var styleLayer in styleJson.StyleLayers)
             {
                 if (styleLayer.Type.Equals("background") && styleLayer.Paint.BackgroundColor != null)
@@ -55,7 +58,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
                     styleLayer.Filter = filterConverter.ConvertFilter(styleLayer.NativeFilter);
 
                 // Create ThemeStyles for each style layer
-                styleLayer.Style = new MapboxGLThemeStyle(styleLayerConverter, styleLayer, SpriteAtlas)
+                styleLayer.Style = new MapboxGLThemeStyle(styleLayerConverter, styleLayer, SpriteAtlas, map.Viewport, symbolProvider)
                 {
                     MinVisible = styleLayer.MinVisible,
                     MaxVisible = styleLayer.MaxVisible
@@ -124,18 +127,20 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
                             }
                         }
                         // Create new vector layer
-                        var layer = CreateVectorLayer(sourceJson);
+                        var vectorTilelayer = CreateVectorLayer(sourceJson, symbolProvider);
                         // Layer has a list of ThemeStyles, one for each style in style file
-                        layer.Style = new StyleCollection();
+                        vectorTilelayer.Style = new StyleCollection();
                         // Add all ThemeStyles for this layer
                         foreach (var styleLayer in styleJson.StyleLayers)
                         {
-                            ((StyleCollection)layer.Style).Add(styleLayer.Style);
+                            ((StyleCollection)vectorTilelayer.Style).Add(styleLayer.Style);
                         }
+                        // Add bounds to bounds of SymbolProvider
+                        symbolProvider.Bounds.Join(((VectorTileProvider)vectorTilelayer.DataSource).Bounds);
                         // Only when Style avalible
-                        layer.Enabled = ((StyleCollection)layer.Style).Count > 0;
+                        vectorTilelayer.Enabled = ((StyleCollection)vectorTilelayer.Style).Count > 0;
                         // Add layer to map
-                        map.Layers.Add(layer);
+                        map.Layers.Add(vectorTilelayer);
                         break;
                     case "geoJson":
                         break;
@@ -147,6 +152,15 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
                         throw new ArgumentException($"{source.Value.Type} isn't a valid source");
                 }
             }
+
+            // Now add SymbolLayer at top most on map
+            map.Layers.Add(new Layer("Symbols")
+            {
+                DataSource = symbolProvider,
+                CRS = "EPSG:3857",
+                MinVisible = 0,
+                MaxVisible = double.PositiveInfinity,
+            });
 
             if (styleJson.Center != null)
             {
@@ -176,7 +190,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
             };
         }
 
-        private ILayer CreateVectorLayer(Source source)
+        private VectorTileLayer CreateVectorLayer(Source source, SymbolProvider symbolProvider)
         {
             var tileSource = CreateTileSource(source);
             var cache = new MemoryCache<IList<IFeature>>();
@@ -186,7 +200,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
             var top = source.Bounds[3].Type == JTokenType.Float ? (float)source.Bounds[3] : 85.0511f;
             var bounds = new BoundingBox(new Point(left, bottom), new Point(right, top));
 
-            var vectorLayer = new Layer(source.Name)
+            var vectorLayer = new VectorTileLayer(source.Name, symbolProvider)
             {
                 DataSource = new VectorTileProvider(tileSource, bounds, cache),
                 CRS = "EPSG:3857",

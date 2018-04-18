@@ -28,8 +28,9 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
         [JsonProperty("fill-translate")]
         public object FillTranslate { get; set; }
 
+        [JsonConverter(typeof(StoppedStringConverter))]
         [JsonProperty("fill-pattern")]
-        public string FillPattern { get; set; }
+        public StoppedString FillPattern { get; set; }
 
         [JsonConverter(typeof(StoppedColorConverter))]
         [JsonProperty("fill-outline-color")]

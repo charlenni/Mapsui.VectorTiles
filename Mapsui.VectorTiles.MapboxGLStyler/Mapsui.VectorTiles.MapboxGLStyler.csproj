@@ -78,7 +78,6 @@
     <Compile Include="Pbf\ZigZag.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Converter\StoppedFloatConverter.cs" />
-    <Compile Include="VectorTileLayer.cs" />
     <Compile Include="VectorTileProvider.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -12,7 +12,6 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
         public override bool CanConvert(Type objectType)
         {
             return objectType == typeof(StoppedString) || objectType == typeof(string);
-            //return typeof(StoppedDouble).IsAssignableFrom(objectType) || typeof(int).IsAssignableFrom(objectType);
         }
 
         public override object ReadJson(JsonReader reader,
@@ -27,9 +26,9 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
 
                 foreach (var stop in token.SelectToken("stops"))
                 {
-                    var resolution = (float)stop.First.ToObject<float>().ToResolution();
+                    var zoom = (float)stop.First.ToObject<float>();
                     var text = stop.Last.ToObject<string>();
-                    stoppedString.Stops.Add(new KeyValuePair<float, string>(resolution, text));
+                    stoppedString.Stops.Add(new KeyValuePair<float, string>(zoom, text));
                 }
 
                 return stoppedString;

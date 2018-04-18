@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using Mapsui.Providers;
@@ -67,7 +68,7 @@ namespace Mapsui.VectorTiles.Sample.Wpf
                 throw;
             }
 
-//            MapControl.Map.NavigateTo(MapControl.Map.Resolutions[(int)jsonStyler.Zoom]);
+            //            MapControl.Map.NavigateTo(MapControl.Map.Resolutions[(int)jsonStyler.Zoom]);
 
             //var bb = new BoundingBox(Projection.SphericalMercator.FromLonLat(7.3090279, 43.416333),
             //    Projection.SphericalMercator.FromLonLat(7.633167, 43.8519311));
@@ -88,9 +89,23 @@ namespace Mapsui.VectorTiles.Sample.Wpf
             //    Style = null,
             //});
 
+            MapControl.Map.Viewport.ViewportChanged += ViewportChanged;
             MapControl.Map.Viewport.Rotation = 0;
             MapControl.Map.NavigateTo(new Geometries.Point(825536.9246620, 5423536.19435341));
             MapControl.Map.NavigateTo(MapControl.Map.Resolutions[20]);
+        }
+
+        private void ViewportChanged(object sender, PropertyChangedEventArgs e)
+        {
+            LabelResolution.Content = "Resolution: " + MapControl.Map.Viewport.Resolution.ToString();
+            LabelZoom.Content = "Zoom: "+ FromResolution(MapControl.Map.Viewport.Resolution).ToString();
+        }
+
+        private double FromResolution(double resolution)
+        {
+            var zoom = Math.Log(78271.51696401953125 / resolution, 2);
+
+            return zoom < 0 ? 0 : zoom;
         }
     }
 }

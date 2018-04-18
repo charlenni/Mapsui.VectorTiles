@@ -31,9 +31,9 @@ namespace Mapsui.VectorTiles.MapboxGLStyler
 
                 foreach (var stop in token.SelectToken("stops"))
                 {
-                    var resolution = (float)stop.First.ToObject<float>().ToResolution();
+                    var zoom = (float)stop.First.ToObject<float>();
                     var colorString = stop.Last.ToObject<string>();
-                    stoppedColor.Stops.Add(new KeyValuePair<float, Color>(resolution, Color.FromString(colorString)));
+                    stoppedColor.Stops.Add(new KeyValuePair<float, Color>(zoom, Color.FromString(colorString)));
                 }
 
                 return stoppedColor;

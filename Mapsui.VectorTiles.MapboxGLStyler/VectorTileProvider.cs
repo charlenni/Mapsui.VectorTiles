@@ -9,7 +9,7 @@ using Mapsui.Providers;
 
 namespace Mapsui.VectorTiles.MapboxGLFormat
 {
-    public class VectorTileProvider : IProvider
+    public class VectorTileProvider : IVectorTileProvider
     {
         private ITileCache<IList<IFeature>> _cache;
 
@@ -145,16 +145,10 @@ namespace Mapsui.VectorTiles.MapboxGLFormat
                     if (IsGZipped(stream))
                         stream = new GZipStream(stream, CompressionMode.Decompress);
 
-                    var layer = VectorTileParser.Parse(tileInfo, stream);
-
-                    features = new List<IFeature>();
-                    foreach (var feature in layer.VectorTileFeatures)
-                    {
-                        features.Add(feature);
-                    }
+                    features = VectorTileParser.Parse(tileInfo, stream);
 
                     // Save for later use
-                    if (_cache != null && layer.VectorTileFeatures.Count > 0)
+                    if (_cache != null && features.Count > 0)
                         _cache.Add(tileInfo.Index, features);
 
                     stream = null;

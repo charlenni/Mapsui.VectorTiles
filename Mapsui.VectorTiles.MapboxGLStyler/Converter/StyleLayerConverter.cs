@@ -17,7 +17,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
         /// <param name="styleLayer">Mapbox GL style layer</param>
         /// <param name="spriteAtlas">Dictionary with availible sprites</param>
         /// <returns>A list of Mapsui Styles</returns>
-        public IList<IStyle> Convert(EvaluationContext context, StyleLayer styleLayer, Dictionary<string, Styles.Sprite> spriteAtlas)
+        public IList<IStyle> Convert(EvaluationContext context, StyleLayer styleLayer, Dictionary<string, Styles.Sprite> spriteAtlas, SymbolProvider symbolProvider)
         {
             switch (styleLayer.Type)
             {
@@ -26,7 +26,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 case "line":
                     return ConvertLineLayer(context, styleLayer, spriteAtlas);
                 case "symbol":
-                    return ConvertSymbolLayer(context, styleLayer, spriteAtlas);
+                    return ConvertSymbolLayer(context, styleLayer, spriteAtlas, symbolProvider);
                 case "circle":
                     return new List<IStyle>();
                 case "raster":
@@ -39,7 +39,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             return new List<IStyle>();
         }
 
-        public IStyle ConvertRasterLayer(float contextResolution, StyleLayer styleLayer)
+        public IStyle ConvertRasterLayer(float contextZoom, StyleLayer styleLayer)
         {
             // visibility
             //   Optional enum. One of visible, none. Defaults to visible.
@@ -56,7 +56,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             //   The opacity at which the image will be drawn.
             if (paint?.RasterOpacity != null)
             {
-                styleRaster.Opacity = paint.RasterOpacity.Evaluate(contextResolution);
+                styleRaster.Opacity = paint.RasterOpacity.Evaluate(contextZoom);
             }
 
             // raster-hue-rotate
@@ -117,7 +117,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             //   opacity of the 1px stroke, if it is used.
             if (paint?.FillColor != null)
             {
-                styleVector.Fill = new Styles.Brush(paint.FillColor.Evaluate(context.Resolution))
+                styleVector.Fill = new Styles.Brush(paint.FillColor.Evaluate(context.Zoom))
                 {
                     FillStyle = FillStyle.Solid
                 };
@@ -131,7 +131,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             //   The outline color of the fill. Matches the value of fill-color if unspecified.
             if (paint?.FillOutlineColor != null) // && paint.FillOutlineColor is string)
             {
-                line.Color = paint.FillOutlineColor.Evaluate(context.Resolution);
+                line.Color = paint.FillOutlineColor.Evaluate(context.Zoom);
             }
 
             // fill-opacity
@@ -162,6 +162,22 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             //   Optional string. Interval.
             //   Name of image in sprite to use for drawing image fills. For seamless patterns, 
             //   image width and height must be a factor of two(2, 4, 8, …, 512).
+            if (paint?.FillPattern != null)
+            {
+                var name = ReplaceFields(paint.FillPattern.Evaluate(context.Zoom), context.Feature.Tags);
+
+                if (!string.IsNullOrEmpty(name) && spriteAtlas.ContainsKey(name) && spriteAtlas[name].Atlas >= 0)
+                {
+                    styleVector.Fill.BitmapId = spriteAtlas[name].Atlas;
+                }
+                else
+                {
+                    // No sprite found
+                    styleVector.Fill.BitmapId = -1;
+                    // Log information
+                    Logging.Logger.Log(Logging.LogLevel.Information, $"Fill pattern {name} not found");
+                }
+            }
 
             if (context.Feature.GeometryType == GeometryType.Polygon)
                 styleVector.Outline = line;
@@ -245,7 +261,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             //   The color with which the line will be drawn.
             if (paint?.LineColor != null)
             {
-                line.Color = paint.LineColor.Evaluate(context.Resolution);
+                line.Color = paint.LineColor.Evaluate(context.Zoom);
             }
 
             // line-width
@@ -253,7 +269,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             //   Stroke thickness.
             if (paint?.LineWidth != null)
             {
-                line.Width = paint.LineWidth.Evaluate(context.Resolution);
+                line.Width = paint.LineWidth.Evaluate(context.Zoom);
             }
 
             // line-opacity
@@ -261,7 +277,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             //   The opacity at which the line will be drawn.
             if (paint?.LineOpacity != null)
             {
-                line.Color = new Color(line.Color.R, line.Color.G, line.Color.B, (int)Math.Round(paint.LineOpacity.Evaluate(context.Resolution) * 255.0));
+                line.Color = new Color(line.Color.R, line.Color.G, line.Color.B, (int)Math.Round(paint.LineOpacity.Evaluate(context.Zoom) * 255.0));
             }
 
             // line-dasharray
@@ -334,12 +350,13 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             return result;
         }
 
-        public IList<IStyle> ConvertSymbolLayer(EvaluationContext context, StyleLayer styleLayer, Dictionary<string, Styles.Sprite> spriteAtlas)
+        public IList<IStyle> ConvertSymbolLayer(EvaluationContext context, StyleLayer styleLayer, Dictionary<string, Styles.Sprite> spriteAtlas, SymbolProvider symbolProvider)
         {
             string styleLabelText = string.Empty;
             List<IStyle> result = new List<IStyle>();
 
-
+            if (context.Feature.GeometryType == GeometryType.LineString)
+                styleLabelText = "";
 
             //return result;
 
@@ -363,28 +380,32 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
 
             styleLabel.Font.Size = 16;
 
-            var styleVector = new VectorStyle();
-
             var styleSymbol = new SymbolStyle
             {
                 Enabled = false,
-            };
-
-            var line = new Pen
-            {
-                Width = 1,
-                PenStrokeCap = PenStrokeCap.Butt,
             };
 
             // symbol-placement
             //   Optional enum. One of point, line. Defaults to point. Interval.
             //   Label placement relative to its geometry. line can only be used on 
             //   LineStrings and Polygons.
-
-            // symbol-spacing
-            //   Optional number. Units in pixels. Defaults to 250. Requires symbol-placement = line. Exponential.
-            //   Distance between two symbol anchors.
-
+            if (layout?.SymbolPlacement != null)
+            {
+                switch (layout.SymbolPlacement.Evaluate(context.Zoom))
+                {
+                    case "point":
+                        break;
+                    case "line":
+                        // symbol-spacing
+                        //   Optional number. Units in pixels. Defaults to 250. Requires symbol-placement = line. Exponential.
+                        //   Distance between two symbol anchors.
+                        if (layout?.SymbolSpacing != null)
+                        {
+                            styleLabel.Spacing = layout.SymbolSpacing.Evaluate(context.Zoom);
+                        }
+                        break;
+                }
+            }
             // symbol-avoid-edges
             //   Optional boolean. Defaults to false. Interval.
             //   If true, the symbols will not cross tile edges to avoid mutual collisions.
@@ -421,7 +442,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 //   The color with which the text will be drawn.
                 if (paint?.TextColor != null)
                 {
-                    styleLabel.ForeColor = paint.TextColor.Evaluate(context.Resolution);
+                    styleLabel.ForeColor = paint.TextColor.Evaluate(context.Zoom);
                 }
 
                 // text-opacity
@@ -436,7 +457,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 //   The color of the text's halo, which helps it stand out from backgrounds.
                 if (paint?.TextHaloColor != null)
                 {
-                    styleLabel.Halo.Color = paint.TextHaloColor.Evaluate(context.Resolution);
+                    styleLabel.Halo.Color = paint.TextHaloColor.Evaluate(context.Zoom);
                 }
 
                 //text-halo-width
@@ -444,7 +465,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 //   Distance of halo to the font outline. Max text halo width is 1/4 of the font-size.
                 if (paint?.TextHaloWidth != null)
                 {
-                    styleLabel.Halo.Width = paint.TextHaloWidth.Evaluate(context.Resolution);
+                    styleLabel.Halo.Width = paint.TextHaloWidth.Evaluate(context.Zoom);
                 }
 
                 // text-font
@@ -473,7 +494,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 //   Font size.
                 if (layout?.TextSize != null)
                 {
-                    styleLabel.Font.Size = layout.TextSize.Evaluate(context.Resolution);
+                    styleLabel.Font.Size = layout.TextSize.Evaluate(context.Zoom);
                 }
 
                 // text-rotation-alignment
@@ -486,9 +507,19 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 //   indicate right and down, while negative values indicate left and up.
                 if (paint?.TextTranslate != null)
                 {
+                    var offset = new Offset
+                    {
+                        X = paint.TextTranslate.Count > 0 ? -paint.TextTranslate[0] : 0,
+                        Y = paint.TextTranslate.Count > 1 ? -paint.TextTranslate[1] : 0
+                    };
+
+                    styleLabel.Offset = offset;
+
                     // text-translate-anchor
                     //   Optional enum. One of map, viewport. Defaults to map. Requires text-field. Requires text-translate. Interval.
                     //   Control whether the translation is relative to the map(north) or viewport(screen).
+
+                    // TODO: Don't know, how to do this in the moment
                 }
 
                 // text-max-width
@@ -496,7 +527,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 //   The maximum line width for text wrapping.
                 if (layout?.TextMaxWidth != null)
                 {
-                    styleLabel.MaxWidth = layout.TextMaxWidth.Evaluate(context.Resolution);
+                    styleLabel.MaxWidth = layout.TextMaxWidth.Evaluate(context.Zoom);
                 }
 
                 // text-line-height
@@ -510,6 +541,21 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 // text-justify
                 //   Optional enum. One of left, center, right. Defaults to center. Requires text-field. Interval.
                 //   Text justification options.
+                if (layout?.TextJustify != null)
+                {
+                    switch (layout.TextJustify)
+                    {
+                        case "left":
+                            styleLabel.Justify = LabelStyle.HorizontalAlignmentEnum.Left;
+                            break;
+                        case "right":
+                            styleLabel.Justify = LabelStyle.HorizontalAlignmentEnum.Right;
+                            break;
+                        default:
+                            styleLabel.Justify = LabelStyle.HorizontalAlignmentEnum.Center;
+                            break;
+                    }
+                }
 
                 // text-anchor
                 //   Optional enum. One of center, left, right, top, bottom, top-left, top-right, bottom-left, 
@@ -593,7 +639,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 if (layout?.TextAllowOverlap != null)
                 {
                     // TODO
-                    layout.TextAllowOverlap.Evaluate(context.Resolution);
+                    layout.TextAllowOverlap.Evaluate(context.Zoom);
                 }
 
                 // text-ignore-placement
@@ -602,7 +648,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 if (layout?.TextIgnorePlacement != null)
                 {
                     // TODO
-                    layout.TextIgnorePlacement.Evaluate(context.Resolution);
+                    layout.TextIgnorePlacement.Evaluate(context.Zoom);
                 }
 
                 // text-optional
@@ -611,7 +657,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 if (layout?.TextOptional != null)
                 {
                     // TODO
-                    layout.TextOptional.Evaluate(context.Resolution);
+                    layout.TextOptional.Evaluate(context.Zoom);
                 }
 
                 // text-halo-blur
@@ -624,7 +670,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
             //   A string with { tokens } replaced, referencing the data property to pull from. Interval.
             if (layout?.IconImage != null)
             {
-                var name = ReplaceFields(layout.IconImage.Evaluate(context.Resolution), context.Feature.Tags);
+                var name = ReplaceFields(layout.IconImage.Evaluate(context.Zoom), context.Feature.Tags);
 
                 if (!string.IsNullOrEmpty(name) && spriteAtlas.ContainsKey(name) && spriteAtlas[name].Atlas >= 0)
                 {
@@ -644,7 +690,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 if (layout?.IconAllowOverlap != null)
                 {
                     // TODO
-                    layout.IconAllowOverlap.Evaluate(context.Resolution);
+                    layout.IconAllowOverlap.Evaluate(context.Zoom);
                 }
 
                 // icon-ignore-placement
@@ -653,7 +699,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 if (layout?.IconIgnorePlacement != null)
                 {
                     // TODO
-                    layout.IconIgnorePlacement.Evaluate(context.Resolution);
+                    layout.IconIgnorePlacement.Evaluate(context.Zoom);
                 }
 
                 // icon-optional
@@ -663,7 +709,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 if (layout?.IconOptional != null)
                 {
                     // TODO
-                    layout.IconOptional.Evaluate(context.Resolution);
+                    layout.IconOptional.Evaluate(context.Zoom);
                 }
 
                 // icon-rotation-alignment
@@ -675,7 +721,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 //   Scale factor for icon. 1 is original size, 3 triples the size.
                 if (layout?.IconSize != null)
                 {
-                    styleSymbol.SymbolScale = layout.IconSize.Evaluate(context.Resolution);
+                    styleSymbol.SymbolScale = layout.IconSize.Evaluate(context.Zoom);
                 }
 
                 // icon-rotate
@@ -707,7 +753,7 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 //   The opacity at which the icon will be drawn.
                 if (layout?.IconOpacity != null)
                 {
-                    styleSymbol.Opacity = layout.IconOpacity.Evaluate(context.Resolution);
+                    styleSymbol.Opacity = layout.IconOpacity.Evaluate(context.Zoom);
                 }
 
                 // icon-color
@@ -736,32 +782,29 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Converter
                 //   Control whether the translation is relative to the map(north) or viewport(screen).
             }
 
-            if (context.Feature.GeometryType == GeometryType.Polygon)
-                styleVector.Outline = line;
-            else if (context.Feature.GeometryType == GeometryType.LineString)
-                styleVector.Line = line;
-
-            if (context.Feature.GeometryType == GeometryType.Point)
+            if (!string.IsNullOrEmpty(styleLabelText))
             {
-                if (!string.IsNullOrEmpty(styleLabelText))
-                {
-                    styleLabel.Enabled = true;
+                styleLabel.Enabled = true;
 
-                    result.Add(styleLabel);
-                }
-
-                if (styleSymbol.BitmapId >= 0)
-                {
-                    styleSymbol.Enabled = true;
-
-                    result.Add(styleSymbol);
-                }
+                result.Add(styleLabel);
             }
-            else
-            {
-                styleVector.Enabled = true;
 
-                result.Add(styleVector);
+            if (styleSymbol.BitmapId >= 0)
+            {
+                styleSymbol.Enabled = true;
+
+                result.Add(styleSymbol);
+            }
+
+            if (symbolProvider != null)
+            {
+                symbolProvider.Symbols.Add(new Symbol
+                {
+                    Feature = context.Feature,
+                });
+
+                // If there is an SymbolLayer, than it handles drawing of symbols
+                result = null;
             }
 
             return result;

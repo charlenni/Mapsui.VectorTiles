@@ -53,8 +53,8 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
         [JsonProperty("text-anchor")]
         public string TextAnchor { get; set; }
 
-        [JsonProperty("symbol-placement")]
-        public object SymbolPlacement { get; set; }
+        [JsonProperty("text-justify")]
+        public string TextJustify { get; set; }
 
         [JsonProperty("text-rotation-alignment")]
         public string TextRotationAlignment { get; set; }
@@ -79,8 +79,13 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
         [JsonProperty("icon-image")]
         public StoppedString IconImage { get; set; }
 
+        [JsonConverter(typeof(StoppedStringConverter))]
+        [JsonProperty("symbol-placement")]
+        public StoppedString SymbolPlacement { get; set; }
+
+        [JsonConverter(typeof(StoppedFloatConverter))]
         [JsonProperty("symbol-spacing")]
-        public object SymbolSpacing { get; set; }
+        public StoppedFloat SymbolSpacing { get; set; }
 
         [JsonProperty("icon-padding")]
         public int? IconPadding { get; set; }

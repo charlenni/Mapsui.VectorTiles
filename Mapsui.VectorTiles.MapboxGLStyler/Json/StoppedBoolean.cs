@@ -18,9 +18,9 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
         /// Calculate the correct boolean for a stopped function
         /// No StoppsType needed, because booleans couldn't interpolated :)
         /// </summary>
-        /// <param name="contextResolution">Resolution factor for calculation </param>
+        /// <param name="contextZoom">Zoom factor for calculation </param>
         /// <returns>Value for this stopp respecting resolution factor and type</returns>
-        public bool Evaluate(float? contextResolution)
+        public bool Evaluate(float? contextZoom)
         {
             // Are there no stopps, but a single value?
             if (SingleVal != null)
@@ -30,28 +30,28 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
             if (Stops.Count == 0)
                 return false;
 
-            float resolution = contextResolution ?? (float)0f.ToResolution();
+            float zoom = contextZoom ?? 0f;
 
-            var lastResolution = Stops[0].Key;
+            var lastZoom = Stops[0].Key;
             var lastValue = Stops[0].Value;
 
-            if (lastResolution < resolution)
+            if (lastZoom > zoom)
                 return lastValue;
 
             for (int i = 1; i < Stops.Count; i++)
             {
-                var nextResolution = Stops[i].Key;
+                var nextZoom = Stops[i].Key;
                 var nextValue = Stops[i].Value;
 
-                if (resolution == nextResolution)
+                if (zoom == nextZoom)
                     return nextValue;
 
-                if (lastResolution >= resolution && resolution > nextResolution)
+                if (lastZoom <= zoom && zoom < nextZoom)
                 {
                     return lastValue;
                 }
 
-                lastResolution = nextResolution;
+                lastZoom = nextZoom;
                 lastValue = nextValue;
             }
 

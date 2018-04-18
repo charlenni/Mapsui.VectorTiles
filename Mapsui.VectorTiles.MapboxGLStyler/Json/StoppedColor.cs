@@ -20,10 +20,10 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
         /// Calculate the correct color for a stopped function
         /// No Bezier type up to now
         /// </summary>
-        /// <param name="contextResolution">Zoom factor for calculation </param>
+        /// <param name="contextZoom">Zoom factor for calculation </param>
         /// <param name="stoppsType">Type of calculation (interpolate, exponential, categorical)</param>
         /// <returns>Value for this stopp respecting zoom factor and type</returns>
-        public Color Evaluate(float? contextResolution, StopsType stoppsType = StopsType.Exponential)
+        public Color Evaluate(float? contextZoom, StopsType stoppsType = StopsType.Exponential)
         {
             // Are there no stopps, but a single value?
             if (SingleVal != null)
@@ -33,31 +33,31 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
             if (Stops.Count == 0)
                 return null;
 
-            float resolution = contextResolution ?? (float)0f.ToResolution();
+            float zoom = contextZoom ?? 0f;
 
-            var lastResolution = Stops[0].Key;
+            var lastZoom = Stops[0].Key;
             var lastColor = Stops[0].Value;
 
-            if (lastResolution < resolution)
+            if (lastZoom > zoom)
                 return lastColor;
 
             for (int i = 1; i < Stops.Count; i++)
             {
-                var nextResolution = Stops[i].Key;
+                var nextZoom = Stops[i].Key;
                 var nextColor = Stops[i].Value;
 
-                if (resolution == nextResolution)
+                if (zoom == nextZoom)
                     return nextColor;
 
-                if (lastResolution >= resolution && resolution > nextResolution)
+                if (lastZoom <= zoom && zoom < nextZoom)
                 {
                     switch (stoppsType)
                     {
                         case StopsType.Interval:
                             return lastColor;
                         case StopsType.Exponential:
-                            var progress = lastResolution - resolution;
-                            var difference = lastResolution - nextResolution;
+                            var progress = zoom - lastZoom;
+                            var difference = nextZoom - lastZoom;
                             if (difference < float.Epsilon)
                                 return null;
                             float factor;
@@ -72,13 +72,13 @@ namespace Mapsui.VectorTiles.MapboxGLStyler.Json
                             return new Color(r, g, b, a);
                         case StopsType.Categorical:
                             // ==
-                            if (resolution - nextResolution < float.Epsilon)
+                            if (nextZoom - zoom < float.Epsilon)
                                 return nextColor;
                             break;
                     }
                 }
 
-                lastResolution = nextResolution;
+                lastZoom = nextZoom;
                 lastColor = nextColor;
             }
 

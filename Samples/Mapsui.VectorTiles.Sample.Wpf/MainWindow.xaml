@@ -7,6 +7,8 @@
         xmlns:mapsui="clr-namespace:Mapsui.UI.Wpf;assembly=Mapsui.UI.Wpf"        mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <mapsui:MapControl x:Name="MapControl" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />    
+        <mapsui:MapControl x:Name="MapControl" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+        <Label x:Name="LabelResolution" VerticalAlignment="Bottom" HorizontalAlignment="Left" />
+        <Label x:Name="LabelZoom" VerticalAlignment="Bottom" HorizontalAlignment="Right" />
     </Grid>
 </Window>
